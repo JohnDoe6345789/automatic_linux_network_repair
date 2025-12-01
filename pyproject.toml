@@ -14,121 +14,22 @@ classifiers = [
 ]
 license = {text = "MIT"}
 dependencies = [
-  "typer"
+  "rich",
+  "typer",
 ]
 requires-python = ">= 3.10"
 
 [project.optional-dependencies]
-test = [
-    "coverage",  # testing
+dev = [
+    "black",  # formatting
+    "coverage",  # coverage reporting
+    "flake8",  # linting
+    "ipdb",  # debugging
+    "mypy",  # static typing
+    "pyinstaller",  # packaging
     "pytest",  # testing
     "ruff",  # linting
-    "ty", # checking types
-    "ipdb", # debugging
-    "python-dotenv",
-    "requests",
-    "fastapi",
-    "uvicorn",
-    "pydantic",
-    "lxml",
-    "torch",
-    "torchvision",
-    "torchaudio",
-    "tensorflow",
-    "keras",
-    "jax",
-    "flax",
-    "transformers",
-    "accelerate",
-    "sentencepiece",
-    "onnx",
-    "onnxruntime",
-    "diffusers",
-    "pillow",
-    "numpy",
-    "scipy",
-
-    # Language and text parsing
-    "spacy",
-    "nltk",
-    "gensim",
-    "beautifulsoup4",
-    "lxml",
-    "regex",
-    "tqdm",
-    "textblob",
-    "rapidfuzz",
-    
-    # Game creation
-    "pygame",
-    "pyglet",
-    "arcade",
-    
-    # Web development
-    "flask",
-    "django",
-    "fastapi",
-    "uvicorn",
-    "starlette",
-    "jinja2",
-    "requests",
-    "httpx",
-    
-    # Video editing / processing
-    "opencv-python",
-    "moviepy",
-    "ffmpeg-python",
-    "imageio",
-    "pillow",
-    
-    # Audio creation
-    "pydub",
-    "soundfile",
-    "librosa",
-    "wave",
-    "scikits.audiolab",
-    
-    # Reverse engineering
-    "capstone",
-    "keystone-engine",
-    "unicorn",
-    "lief",
-    
-    # Networking / TCP/UDP
-    "scapy",
-    "aiohttp",
-    "websockets",
-    "socketio",
-    
-    # Data / util
-    "pandas",
-    "matplotlib",
-    "seaborn",
-    "plotly",
-    "pyyaml",
-    "rich",
-
-    # GUI
-    "pyqt6",
-
-    # Web
-    "bottle",
-    "pyramid",
-    "django",
-
-    # Fun
-    "TTS",
-
-    # 3D
-    "trimesh",
-    "pyvista",
-    "open3d",
-    "pygalmesh",
-    "cadquery",
-    "pythonocc-core",
-    "meshio",
-    "assimp",
-    "sdf"
+    "ty",  # type checking
 ]
 
 [project.urls]
@@ -174,6 +75,7 @@ authors = ["Richard Ward <richard.ward637@outlook.com>"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4.0"
+rich = "*"
 typer = "*"
 
 [tool.poetry.group.dev.dependencies]
