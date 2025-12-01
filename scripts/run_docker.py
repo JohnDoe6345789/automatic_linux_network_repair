@@ -202,7 +202,7 @@ def r_parse_runner_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--compose-file",
         default="compose.yml",
-        help="Path to docker compose file (default: docker-compose.yml).",
+        help="Path to docker compose file (default: compose.yml).",
     )
     parser.add_argument(
         "--no-pull",
@@ -225,4 +225,4 @@ def r_main(argv: list[str] | None = None) -> None:
     r_run_docker_compose(compose_path, env_path, pull=do_pull)
 
 if __name__ == "__main__":
-   r_main()
+    r_main()
