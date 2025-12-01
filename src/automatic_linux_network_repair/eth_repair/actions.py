@@ -2,19 +2,19 @@
 
 from __future__ import annotations
 
-from automatic_linux_network_repair.eth_repair.logging_utils import log
-from automatic_linux_network_repair.eth_repair.shell import cmd_str, run_cmd
+from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
+from automatic_linux_network_repair.eth_repair.shell import DEFAULT_SHELL
 
 
 def apply_action(desc: str, cmd: list[str], dry_run: bool) -> bool:
-    log(f"[ACTION] {desc}")
-    log(f"         {cmd_str(cmd)}")
+    DEFAULT_LOGGER.log(f"[ACTION] {desc}")
+    DEFAULT_LOGGER.log(f"         {DEFAULT_SHELL.cmd_str(cmd)}")
     if dry_run:
         return True
-    res = run_cmd(cmd, timeout=20)
+    res = DEFAULT_SHELL.run_cmd(cmd, timeout=20)
     if res.returncode != 0:
-        log(
-            f"[WARN] Action failed (rc={res.returncode}): {cmd_str(cmd)} "
+        DEFAULT_LOGGER.log(
+            f"[WARN] Action failed (rc={res.returncode}): {DEFAULT_SHELL.cmd_str(cmd)} "
             f"stderr={res.stderr.strip()}",
         )
         return False

@@ -6,7 +6,7 @@ from automatic_linux_network_repair.eth_repair.dns_config import (
     detect_resolv_conf_mode,
     systemd_resolved_status,
 )
-from automatic_linux_network_repair.eth_repair.logging_utils import debug
+from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.probes import (
     dns_resolves,
     has_default_route,
@@ -38,7 +38,7 @@ def fuzzy_diagnose(iface: str) -> Diagnosis:
     sd_status = systemd_resolved_status()
     rc_mode, rc_detail = detect_resolv_conf_mode()
 
-    debug(
+    DEFAULT_LOGGER.debug(
         "Diag raw: exists=%s link_up=%s has_ip=%s default_route=%s "
         "ping_ip=%s dns=%s sd_active=%s sd_enabled=%s rc_mode=%s rc_detail=%s",
         exists,

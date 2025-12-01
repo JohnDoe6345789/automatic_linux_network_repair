@@ -1,20 +1,20 @@
-"""Probing helpers for interface state, routes, and DNS."""
+"""Probe helpers for inspecting network interfaces and connectivity."""
 
 from __future__ import annotations
 
 import shutil
 
-from automatic_linux_network_repair.eth_repair.logging_utils import debug
-from automatic_linux_network_repair.eth_repair.shell import run_cmd
+from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
+from automatic_linux_network_repair.eth_repair.shell import DEFAULT_SHELL
 
 
 def interface_exists(iface: str) -> bool:
-    res = run_cmd(["ip", "link", "show", "dev", iface])
+    res = DEFAULT_SHELL.run_cmd(["ip", "link", "show", "dev", iface])
     return res.returncode == 0
 
 
 def interface_link_up(iface: str) -> bool:
-    res = run_cmd(["ip", "link", "show", "dev", iface])
+    res = DEFAULT_SHELL.run_cmd(["ip", "link", "show", "dev", iface])
     if res.returncode != 0:
         return False
     for line in res.stdout.splitlines():
@@ -26,9 +26,9 @@ def interface_link_up(iface: str) -> bool:
 def interface_ip_addrs(iface: str, family: int) -> list[str]:
     """Return a list of IP address strings for iface."""
     if family == 4:
-        res = run_cmd(["ip", "-4", "addr", "show", "dev", iface])
+        res = DEFAULT_SHELL.run_cmd(["ip", "-4", "addr", "show", "dev", iface])
     else:
-        res = run_cmd(["ip", "-6", "addr", "show", "dev", iface])
+        res = DEFAULT_SHELL.run_cmd(["ip", "-6", "addr", "show", "dev", iface])
 
     if res.returncode != 0:
         return []
@@ -48,7 +48,7 @@ def interface_has_ipv4(iface: str) -> bool:
 
 
 def has_default_route() -> bool:
-    res = run_cmd(["ip", "route", "show", "default"])
+    res = DEFAULT_SHELL.run_cmd(["ip", "route", "show", "default"])
     if res.returncode != 0:
         return False
     for line in res.stdout.splitlines():
@@ -58,7 +58,7 @@ def has_default_route() -> bool:
 
 
 def ping_host(host: str, count: int = 1, timeout: int = 3) -> bool:
-    res = run_cmd(
+    res = DEFAULT_SHELL.run_cmd(
         ["ping", "-c", str(count), "-w", str(timeout), host],
         timeout=timeout + 1,
     )
@@ -66,7 +66,7 @@ def ping_host(host: str, count: int = 1, timeout: int = 3) -> bool:
 
 
 def dns_resolves(name: str = "deb.debian.org") -> bool:
-    res = run_cmd(["getent", "hosts", name])
+    res = DEFAULT_SHELL.run_cmd(["getent", "hosts", name])
     if res.returncode != 0:
         return False
     return bool(res.stdout.strip())
@@ -79,15 +79,15 @@ def detect_network_managers() -> dict[str, bool]:
         "ifupdown": False,
     }
 
-    nm = run_cmd(["systemctl", "is-active", "NetworkManager"])
+    nm = DEFAULT_SHELL.run_cmd(["systemctl", "is-active", "NetworkManager"])
     managers["NetworkManager"] = nm.returncode == 0
 
-    sn = run_cmd(["systemctl", "is-active", "systemd-networkd"])
+    sn = DEFAULT_SHELL.run_cmd(["systemctl", "is-active", "systemd-networkd"])
     managers["systemd-networkd"] = sn.returncode == 0
 
     managers["ifupdown"] = shutil.which("ifup") is not None
 
-    debug(f"Network managers detected: {managers}")
+    DEFAULT_LOGGER.debug(f"Network managers detected: {managers}")
     return managers
 
 
@@ -96,7 +96,7 @@ def list_candidate_interfaces() -> list[str]:
     Return real physical interface names, stripping @physdev suffixes
     and excluding common virtual/tunnel/docker links.
     """
-    res = run_cmd(["ip", "-o", "link", "show"])
+    res = DEFAULT_SHELL.run_cmd(["ip", "-o", "link", "show"])
     if res.returncode != 0:
         return []
 
@@ -131,7 +131,7 @@ def list_candidate_interfaces() -> list[str]:
 
 def list_all_interfaces_detailed() -> list[str]:
     """Return lines from `ip -br addr show` for full adapter dump."""
-    res = run_cmd(["ip", "-br", "addr", "show"])
+    res = DEFAULT_SHELL.run_cmd(["ip", "-br", "addr", "show"])
     if res.returncode != 0:
         return [f"[ip -br addr show failed rc={res.returncode}]"]
     return [line.rstrip("\n") for line in res.stdout.splitlines()]

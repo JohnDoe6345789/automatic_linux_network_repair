@@ -9,7 +9,7 @@ from automatic_linux_network_repair.eth_repair.dns_config import (
     set_systemd_resolved_enabled,
     show_systemd_dns_status,
 )
-from automatic_linux_network_repair.eth_repair.logging_utils import log
+from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.probes import (
     detect_network_managers,
     list_candidate_interfaces,
@@ -79,7 +79,7 @@ class EthernetRepairMenu:
             elif choice == "9":
                 self._advanced_systemd_dns_menu()
             elif choice == "10" or choice.lower() in {"q", "quit", "exit"}:
-                log("[INFO] Exiting menu.")
+                DEFAULT_LOGGER.log("[INFO] Exiting menu.")
                 break
             else:
                 print("Invalid choice, please select 1-10.")
@@ -105,7 +105,7 @@ class EthernetRepairMenu:
         ).strip()
         if new_name:
             self.current_iface = new_name
-            log(f"[INFO] Switched to interface: {self.current_iface}")
+            DEFAULT_LOGGER.log(f"[INFO] Switched to interface: {self.current_iface}")
             show_status(self.current_iface)
 
     def _advanced_systemd_dns_menu(self) -> None:
@@ -146,7 +146,7 @@ class EthernetRepairMenu:
                 set_resolv_conf_manual_public(self.dry_run)
                 show_systemd_dns_status()
             elif choice == "7":
-                log("[INFO] Leaving advanced systemd/DNS menu.")
+                DEFAULT_LOGGER.log("[INFO] Leaving advanced systemd/DNS menu.")
                 break
             else:
                 print("Invalid choice, please select 1-7.")
