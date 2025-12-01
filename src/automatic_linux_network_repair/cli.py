@@ -5,7 +5,7 @@ import typer
 from rich.console import Console
 
 from automatic_linux_network_repair import utils
-from automatic_linux_network_repair.eth_repair_menu import main as eth_repair_main
+from automatic_linux_network_repair.eth_repair.cli import main as eth_repair_main
 
 app = typer.Typer(help="Interactive Ethernet repair helper.")
 console = Console()
