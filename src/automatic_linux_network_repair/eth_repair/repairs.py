@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import sys
+
 from automatic_linux_network_repair.eth_repair.actions import apply_action
 from automatic_linux_network_repair.eth_repair.dns_config import (
     backup_resolv_conf,
@@ -20,6 +22,58 @@ from automatic_linux_network_repair.eth_repair.types import (
     Diagnosis,
     Suspicion,
 )
+
+
+class DnsRepairSideEffects:
+    """Encapsulate DNS repair prompting and logging side effects."""
+
+    def __init__(
+        self,
+        logger=DEFAULT_LOGGER,
+        stdin=None,
+        input_func=None,
+    ) -> None:
+        self.logger = logger
+        self.stdin = stdin or sys.stdin
+        self._input = input_func or input
+
+    def log_fuzzy_intro(self) -> None:
+        self.logger.log("[INFO] Fuzzy DNS repair...")
+
+    def log_dns_ok_after_limited(self) -> None:
+        self.logger.log("[INFO] DNS OK after limited DNS repair.")
+
+    def log_dns_broken_details(self, status: dict, mode, detail: str) -> None:
+        self.logger.log("")
+        self.logger.log("DNS still appears broken after limited repair.")
+        self.logger.log(f"systemd-resolved active : {status['active']}")
+        self.logger.log(f"systemd-resolved enabled: {status['enabled']}")
+        self.logger.log(f"/etc/resolv.conf mode   : {mode.value} ({detail})")
+
+    def is_tty(self) -> bool:
+        return self.stdin.isatty()
+
+    def confirm_public_dns_overwrite(self, prompt_lines: list[str] | str) -> bool:
+        prompt = "\n".join(prompt_lines) if isinstance(prompt_lines, list) else prompt_lines
+        answer = self._input(prompt).strip().lower()
+        return answer == "y"
+
+    def log_user_declined_fuzzy(self) -> None:
+        self.logger.log("[INFO] User declined fuzzy DNS resolv.conf rewrite.")
+
+    def log_non_tty_skip(self, context: str) -> None:
+        self.logger.log(f"[INFO] Not running on a TTY; skipping {context}")
+
+    def log_menu_intro(self, status: dict) -> None:
+        self.logger.log("[INFO] DNS repair menu...")
+        self.logger.log(f"systemd-resolved active : {status['active']}")
+        self.logger.log(f"systemd-resolved enabled: {status['enabled']}")
+
+    def log_resolv_conf_mode(self, mode, detail: str) -> None:
+        self.logger.log(f"/etc/resolv.conf mode: {mode.value} ({detail})")
+
+    def log_user_declined_manual(self) -> None:
+        self.logger.log("[INFO] User declined manual resolv.conf rewrite.")
 
 
 def repair_interface_missing(iface: str) -> None:
@@ -190,7 +244,9 @@ def repair_dns_core(allow_resolv_conf_edit: bool, dry_run: bool) -> None:
         )
 
 
-def repair_dns_fuzzy_with_confirm(dry_run: bool) -> None:
+def repair_dns_fuzzy_with_confirm(
+    dry_run: bool, side_effects: DnsRepairSideEffects | None = None
+) -> None:
     """
     Fuzzy DNS repair used from FULL auto-diagnose in interactive mode.
 
@@ -201,28 +257,21 @@ def repair_dns_fuzzy_with_confirm(dry_run: bool) -> None:
       with public DNS. If user says yes, do so; otherwise just log and exit.
     - In non-interactive contexts, never overwrite resolv.conf here.
     """
-    DEFAULT_LOGGER.log("[INFO] Fuzzy DNS repair...")
+    side_effects = side_effects or DnsRepairSideEffects()
+
+    side_effects.log_fuzzy_intro()
     repair_dns_core(allow_resolv_conf_edit=False, dry_run=dry_run)
     if dns_resolves():
-        DEFAULT_LOGGER.log("[INFO] DNS OK after limited DNS repair.")
+        side_effects.log_dns_ok_after_limited()
         return
 
     mode, detail = detect_resolv_conf_mode()
     status = systemd_resolved_status()
 
-    DEFAULT_LOGGER.log("")
-    DEFAULT_LOGGER.log("DNS still appears broken after limited repair.")
-    DEFAULT_LOGGER.log(f"systemd-resolved active : {status['active']}")
-    DEFAULT_LOGGER.log(f"systemd-resolved enabled: {status['enabled']}")
-    DEFAULT_LOGGER.log(f"/etc/resolv.conf mode   : {mode.value} ({detail})")
+    side_effects.log_dns_broken_details(status, mode, detail)
 
-    import sys
-
-    if not sys.stdin.isatty():
-        DEFAULT_LOGGER.log(
-            "[INFO] Not running on a TTY; skipping interactive "
-            "resolv.conf rewrite.",
-        )
+    if not side_effects.is_tty():
+        side_effects.log_non_tty_skip("interactive resolv.conf rewrite.")
         return
 
     prompt_lines = [
@@ -233,25 +282,25 @@ def repair_dns_fuzzy_with_confirm(dry_run: bool) -> None:
         "",
         "Proceed with resolv.conf rewrite? [y/N]: ",
     ]
-    answer = input("\n".join(prompt_lines)).strip().lower()
-    if answer == "y":
+    if side_effects.confirm_public_dns_overwrite(prompt_lines):
         repair_dns_core(allow_resolv_conf_edit=True, dry_run=dry_run)
     else:
-        DEFAULT_LOGGER.log("[INFO] User declined fuzzy DNS resolv.conf rewrite.")
+        side_effects.log_user_declined_fuzzy()
 
 
-def repair_dns_interactive(dry_run: bool) -> None:
+def repair_dns_interactive(
+    dry_run: bool, side_effects: DnsRepairSideEffects | None = None
+) -> None:
     """
     Menu-driven DNS repair (option 6):
     - Always try systemd-resolved restart first.
     - If DNS still broken, ask user for permission before editing resolv.conf.
     - If user agrees, create manual resolv.conf with public DNS.
     """
-    DEFAULT_LOGGER.log("[INFO] DNS repair menu...")
+    side_effects = side_effects or DnsRepairSideEffects()
 
     status = systemd_resolved_status()
-    DEFAULT_LOGGER.log(f"systemd-resolved active : {status['active']}")
-    DEFAULT_LOGGER.log(f"systemd-resolved enabled: {status['enabled']}")
+    side_effects.log_menu_intro(status)
 
     apply_action(
         "Restart systemd-resolved",
@@ -263,21 +312,15 @@ def repair_dns_interactive(dry_run: bool) -> None:
         return
 
     mode, detail = detect_resolv_conf_mode()
-    DEFAULT_LOGGER.log(f"/etc/resolv.conf mode: {mode.value} ({detail})")
+    side_effects.log_resolv_conf_mode(mode, detail)
 
-    import sys
-
-    if not sys.stdin.isatty():
-        DEFAULT_LOGGER.log(
-            "[INFO] Not running on a TTY; skipping manual resolv.conf rewrite.",
-        )
+    if not side_effects.is_tty():
+        side_effects.log_non_tty_skip("manual resolv.conf rewrite.")
         return
 
-    answer = input(
-        "Overwrite /etc/resolv.conf with public DNS (1.1.1.1 / 8.8.8.8)? [y/N]: "
-    ).strip().lower()
-    if answer != "y":
-        DEFAULT_LOGGER.log("[INFO] User declined manual resolv.conf rewrite.")
+    prompt = "Overwrite /etc/resolv.conf with public DNS (1.1.1.1 / 8.8.8.8)? [y/N]: "
+    if not side_effects.confirm_public_dns_overwrite(prompt):
+        side_effects.log_user_declined_manual()
         return
 
     set_resolv_conf_manual_public(dry_run)
