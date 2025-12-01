@@ -1,14 +1,7 @@
 """Tests for DNS repair helpers and side effects."""
 
 from automatic_linux_network_repair.eth_repair import repairs
-
-
-class _RecordingLogger:
-    def __init__(self):
-        self.messages: list[str] = []
-
-    def log(self, msg: str) -> None:
-        self.messages.append(msg)
+from tests.helpers import RecordingLogger
 
 
 class _StubStdin:
@@ -23,21 +16,30 @@ def _stub_mode(label: str):
     return type("Mode", (), {"value": label})()
 
 
-def test_fuzzy_dns_skips_prompt_on_non_tty(monkeypatch):
-    """The fuzzy DNS path should not prompt when stdin is not a TTY."""
-
-    calls: list[tuple[bool, bool]] = []
-    monkeypatch.setattr(
-        repairs, "repair_dns_core", lambda allow_resolv_conf_edit, dry_run: calls.append((allow_resolv_conf_edit, dry_run))
-    )
-    monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
+def _apply_dns_common_stubs(monkeypatch):
     monkeypatch.setattr(repairs, "detect_resolv_conf_mode", lambda: (_stub_mode("stub"), "detail"))
     monkeypatch.setattr(
         repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False}
     )
 
+
+def _record_dns_core_calls(calls: list[tuple[bool, bool]]):
+    def _record(allow_resolv_conf_edit, dry_run):
+        calls.append((allow_resolv_conf_edit, dry_run))
+
+    return _record
+
+
+def test_fuzzy_dns_skips_prompt_on_non_tty(monkeypatch):
+    """The fuzzy DNS path should not prompt when stdin is not a TTY."""
+
+    calls: list[tuple[bool, bool]] = []
+    monkeypatch.setattr(repairs, "repair_dns_core", _record_dns_core_calls(calls))
+    monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
+    _apply_dns_common_stubs(monkeypatch)
+
     effects = repairs.DnsRepairSideEffects(
-        logger=_RecordingLogger(),
+        logger=RecordingLogger(),
         stdin=_StubStdin(False),
         input_func=lambda prompt: "y",
     )
@@ -52,17 +54,12 @@ def test_fuzzy_dns_confirms_and_runs_full_repair(monkeypatch):
     """When the user confirms, the fuzzy flow should escalate to a full repair."""
 
     calls: list[tuple[bool, bool]] = []
-    monkeypatch.setattr(
-        repairs, "repair_dns_core", lambda allow_resolv_conf_edit, dry_run: calls.append((allow_resolv_conf_edit, dry_run))
-    )
+    monkeypatch.setattr(repairs, "repair_dns_core", _record_dns_core_calls(calls))
     monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
-    monkeypatch.setattr(repairs, "detect_resolv_conf_mode", lambda: (_stub_mode("stub"), "detail"))
-    monkeypatch.setattr(
-        repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False}
-    )
+    _apply_dns_common_stubs(monkeypatch)
 
     effects = repairs.DnsRepairSideEffects(
-        logger=_RecordingLogger(),
+        logger=RecordingLogger(),
         stdin=_StubStdin(True),
         input_func=lambda prompt: "y",
     )
@@ -78,13 +75,10 @@ def test_dns_menu_declines_manual_rewrite_on_non_tty(monkeypatch):
 
     monkeypatch.setattr(repairs, "apply_action", lambda *args, **kwargs: None)
     monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
-    monkeypatch.setattr(repairs, "detect_resolv_conf_mode", lambda: (_stub_mode("stub"), "detail"))
-    monkeypatch.setattr(
-        repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False}
-    )
+    _apply_dns_common_stubs(monkeypatch)
 
     effects = repairs.DnsRepairSideEffects(
-        logger=_RecordingLogger(),
+        logger=RecordingLogger(),
         stdin=_StubStdin(False),
         input_func=lambda prompt: "n",
     )
