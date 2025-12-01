@@ -2,10 +2,8 @@
 
 from __future__ import annotations
 
-import argparse
 import os
 import sys
-from typing import List, Optional
 
 from automatic_linux_network_repair.eth_repair.diagnostics import fuzzy_diagnose
 from automatic_linux_network_repair.eth_repair.logging_utils import log, setup_logging
@@ -18,37 +16,13 @@ from automatic_linux_network_repair.eth_repair.repairs import perform_repairs
 from automatic_linux_network_repair.eth_repair.status import show_status
 
 
-def parse_args(argv: Optional[List[str]] = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="Interactive Ethernet repair helper.",
-    )
-    parser.add_argument(
-        "-i",
-        "--interface",
-        default="eth0",
-        help="Interface to repair (default: eth0).",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Log actions but do not make changes.",
-    )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Verbose debug logging.",
-    )
-    parser.add_argument(
-        "--auto",
-        action="store_true",
-        help="Non-interactive: one-shot fuzzy diagnose + repair.",
-    )
-    return parser.parse_args(argv)
-
-
-def main(argv: Optional[List[str]] = None) -> int:
-    args = parse_args(argv)
-    setup_logging(args.verbose)
+def main(
+    interface: str = "eth0",
+    dry_run: bool = False,
+    verbose: bool = False,
+    auto: bool = False,
+) -> int:
+    setup_logging(verbose)
 
     if hasattr(os, "geteuid") and os.geteuid() != 0:
         print(
@@ -62,7 +36,7 @@ def main(argv: Optional[List[str]] = None) -> int:
         )
         return 1
 
-    iface = args.interface
+    iface = interface
 
     if iface == "eth0" and not interface_exists(iface):
         candidates = list_candidate_interfaces()
@@ -88,16 +62,16 @@ def main(argv: Optional[List[str]] = None) -> int:
         return 1
 
     log(f"[INFO] Ethernet repair helper starting for interface: {iface}")
-    if args.dry_run:
+    if dry_run:
         log("[INFO] Dry-run mode enabled (no changes will be made).")
     log("[INFO] Log file (if writable): /tmp/eth_repair.log")
 
-    if args.auto or not sys.stdin.isatty():
+    if auto or not sys.stdin.isatty():
         diag = fuzzy_diagnose(iface)
         perform_repairs(
             iface=iface,
             diagnosis=diag,
-            dry_run=args.dry_run,
+            dry_run=dry_run,
             allow_resolv_conf_edit=False,
         )
         show_status(iface)
@@ -106,7 +80,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     try:
         interactive_menu(
             iface=iface,
-            dry_run=args.dry_run,
+            dry_run=dry_run,
         )
     except KeyboardInterrupt:
         log("[INFO] Exiting menu (Ctrl-C).")
