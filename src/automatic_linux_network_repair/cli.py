@@ -1,6 +1,5 @@
 """Console entrypoints for the network repair toolkit."""
 
-import sys
 import typer
 from rich.console import Console
 
@@ -40,15 +39,12 @@ def main(
     if ctx.invoked_subcommand is not None:
         return
 
-    args = ["--interface", interface]
-    if dry_run:
-        args.append("--dry-run")
-    if verbose:
-        args.append("--verbose")
-    if auto:
-        args.append("--auto")
-
-    exit_code = eth_repair_main(args)
+    exit_code = eth_repair_main(
+        interface=interface,
+        dry_run=dry_run,
+        verbose=verbose,
+        auto=auto,
+    )
     raise typer.Exit(code=exit_code)
 
 
