@@ -9,7 +9,7 @@ from automatic_linux_network_repair.eth_repair.dns_config import (
     set_resolv_conf_manual_public,
     systemd_resolved_status,
 )
-from automatic_linux_network_repair.eth_repair.logging_utils import log
+from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.probes import (
     detect_network_managers,
     dns_resolves,
@@ -23,11 +23,11 @@ from automatic_linux_network_repair.eth_repair.types import (
 
 
 def repair_interface_missing(iface: str) -> None:
-    log(
+    DEFAULT_LOGGER.log(
         "[INFO] Interface does not exist. This is usually a driver, "
         "hardware or VM configuration issue.",
     )
-    log("[HINT] Check dmesg, lspci/lsusb, or hypervisor NIC settings.")
+    DEFAULT_LOGGER.log("[HINT] Check dmesg, lspci/lsusb, or hypervisor NIC settings.")
 
 
 def repair_link_down(iface: str, dry_run: bool) -> None:
@@ -56,10 +56,10 @@ def repair_no_ipv4(
             dry_run,
         )
         if not dry_run and interface_has_ipv4(iface):
-            log("[OK] IPv4 obtained after systemd-networkd restart.")
+            DEFAULT_LOGGER.log("[OK] IPv4 obtained after systemd-networkd restart.")
             return
         if not dry_run:
-            log(
+            DEFAULT_LOGGER.log(
                 "[INFO] No IPv4 after systemd-networkd restart; "
                 "falling back to ifup / dhclient.",
             )
@@ -76,7 +76,7 @@ def repair_no_ipv4(
             dry_run,
         )
         if not dry_run and interface_has_ipv4(iface):
-            log("[OK] IPv4 obtained after ifup.")
+            DEFAULT_LOGGER.log("[OK] IPv4 obtained after ifup.")
             return
 
     apply_action(
@@ -85,9 +85,9 @@ def repair_no_ipv4(
         dry_run,
     )
     if not dry_run and interface_has_ipv4(iface):
-        log("[OK] IPv4 obtained after dhclient.")
+        DEFAULT_LOGGER.log("[OK] IPv4 obtained after dhclient.")
     elif not dry_run:
-        log(
+        DEFAULT_LOGGER.log(
             "[WARN] Still no IPv4 after systemd-networkd/ifup/dhclient. "
             "Check your DHCP server or static config.",
         )
@@ -120,7 +120,7 @@ def repair_no_route(dry_run: bool) -> None:
         )
         return
 
-    log(
+    DEFAULT_LOGGER.log(
         "[INFO] No known network manager to fix default route; "
         "you may need to add it manually.",
     )
@@ -139,11 +139,11 @@ def repair_dns_core(allow_resolv_conf_edit: bool, dry_run: bool) -> None:
             dry_run,
         )
         if not dry_run and dns_resolves():
-            log("[OK] DNS fixed after systemd-resolved restart.")
+            DEFAULT_LOGGER.log("[OK] DNS fixed after systemd-resolved restart.")
             return
 
     if not allow_resolv_conf_edit:
-        log(
+        DEFAULT_LOGGER.log(
             "[INFO] DNS appears broken; resolv.conf editing is disabled in "
             "this mode. Use menu option 6 or the advanced systemd/DNS menu.",
         )
@@ -153,9 +153,9 @@ def repair_dns_core(allow_resolv_conf_edit: bool, dry_run: bool) -> None:
     set_resolv_conf_manual_public(dry_run)
 
     if not dry_run and dns_resolves():
-        log("[OK] DNS working after resolv.conf rewrite.")
+        DEFAULT_LOGGER.log("[OK] DNS working after resolv.conf rewrite.")
     elif not dry_run:
-        log(
+        DEFAULT_LOGGER.log(
             "[WARN] DNS still failing after resolv.conf rewrite. "
             "Check firewall / router.",
         )
@@ -172,25 +172,25 @@ def repair_dns_fuzzy_with_confirm(dry_run: bool) -> None:
       with public DNS. If user says yes, do so; otherwise just log and exit.
     - In non-interactive contexts, never overwrite resolv.conf here.
     """
-    log("[INFO] Fuzzy DNS repair...")
+    DEFAULT_LOGGER.log("[INFO] Fuzzy DNS repair...")
     repair_dns_core(allow_resolv_conf_edit=False, dry_run=dry_run)
     if dns_resolves():
-        log("[INFO] DNS OK after limited DNS repair.")
+        DEFAULT_LOGGER.log("[INFO] DNS OK after limited DNS repair.")
         return
 
     mode, detail = detect_resolv_conf_mode()
     status = systemd_resolved_status()
 
-    log("")
-    log("DNS still appears broken after limited repair.")
-    log(f"systemd-resolved active : {status['active']}")
-    log(f"systemd-resolved enabled: {status['enabled']}")
-    log(f"/etc/resolv.conf mode   : {mode.value} ({detail})")
+    DEFAULT_LOGGER.log("")
+    DEFAULT_LOGGER.log("DNS still appears broken after limited repair.")
+    DEFAULT_LOGGER.log(f"systemd-resolved active : {status['active']}")
+    DEFAULT_LOGGER.log(f"systemd-resolved enabled: {status['enabled']}")
+    DEFAULT_LOGGER.log(f"/etc/resolv.conf mode   : {mode.value} ({detail})")
 
     import sys
 
     if not sys.stdin.isatty():
-        log(
+        DEFAULT_LOGGER.log(
             "[INFO] Not running on a TTY; skipping interactive "
             "resolv.conf rewrite.",
         )
@@ -208,7 +208,7 @@ def repair_dns_fuzzy_with_confirm(dry_run: bool) -> None:
     if answer == "y":
         repair_dns_core(allow_resolv_conf_edit=True, dry_run=dry_run)
     else:
-        log("[INFO] User declined fuzzy DNS resolv.conf rewrite.")
+        DEFAULT_LOGGER.log("[INFO] User declined fuzzy DNS resolv.conf rewrite.")
 
 
 def repair_dns_interactive(dry_run: bool) -> None:
@@ -218,11 +218,11 @@ def repair_dns_interactive(dry_run: bool) -> None:
     - If DNS still broken, ask user for permission before editing resolv.conf.
     - If user agrees, create manual resolv.conf with public DNS.
     """
-    log("[INFO] DNS repair menu...")
+    DEFAULT_LOGGER.log("[INFO] DNS repair menu...")
 
     status = systemd_resolved_status()
-    log(f"systemd-resolved active : {status['active']}")
-    log(f"systemd-resolved enabled: {status['enabled']}")
+    DEFAULT_LOGGER.log(f"systemd-resolved active : {status['active']}")
+    DEFAULT_LOGGER.log(f"systemd-resolved enabled: {status['enabled']}")
 
     apply_action(
         "Restart systemd-resolved",
@@ -230,16 +230,16 @@ def repair_dns_interactive(dry_run: bool) -> None:
         dry_run,
     )
     if not dry_run and dns_resolves():
-        log("[OK] DNS fixed after systemd-resolved restart.")
+        DEFAULT_LOGGER.log("[OK] DNS fixed after systemd-resolved restart.")
         return
 
     mode, detail = detect_resolv_conf_mode()
-    log(f"/etc/resolv.conf mode: {mode.value} ({detail})")
+    DEFAULT_LOGGER.log(f"/etc/resolv.conf mode: {mode.value} ({detail})")
 
     import sys
 
     if not sys.stdin.isatty():
-        log(
+        DEFAULT_LOGGER.log(
             "[INFO] Not running on a TTY; skipping manual resolv.conf rewrite.",
         )
         return
@@ -248,14 +248,14 @@ def repair_dns_interactive(dry_run: bool) -> None:
         "Overwrite /etc/resolv.conf with public DNS (1.1.1.1 / 8.8.8.8)? [y/N]: "
     ).strip().lower()
     if answer != "y":
-        log("[INFO] User declined manual resolv.conf rewrite.")
+        DEFAULT_LOGGER.log("[INFO] User declined manual resolv.conf rewrite.")
         return
 
     set_resolv_conf_manual_public(dry_run)
     if not dry_run and dns_resolves():
-        log("[OK] DNS working after resolv.conf rewrite.")
+        DEFAULT_LOGGER.log("[OK] DNS working after resolv.conf rewrite.")
     elif not dry_run:
-        log(
+        DEFAULT_LOGGER.log(
             "[WARN] DNS still failing after resolv.conf rewrite. "
             "Check firewall / router.",
         )
@@ -271,13 +271,13 @@ class EthernetRepairCoordinator:
 
     def perform_repairs(self, diagnosis: Diagnosis) -> None:
         """Apply the most appropriate fix for a diagnosis."""
-        log("[INFO] Performing auto-repair...")
+        DEFAULT_LOGGER.log("[INFO] Performing auto-repair...")
 
         ordered = diagnosis.sorted_scores()
-        log("Suspicion scores:")
+        DEFAULT_LOGGER.log("Suspicion scores:")
         for suspicion, score in ordered:
             label = SUSPICION_LABELS[suspicion]
-            log(f"  {label}: {score:.2f}")
+            DEFAULT_LOGGER.log(f"  {label}: {score:.2f}")
 
         suspicion = diagnosis.top_suspicion
         if suspicion == Suspicion.INTERFACE_MISSING:
@@ -290,14 +290,14 @@ class EthernetRepairCoordinator:
         elif suspicion == Suspicion.NO_ROUTE:
             repair_no_route(dry_run=self.dry_run)
         elif suspicion == Suspicion.NO_INTERNET:
-            log(
+            DEFAULT_LOGGER.log(
                 "[INFO] Unable to ping internet; if DHCP is OK, check "
                 "upstream gateway / firewall.",
             )
         elif suspicion == Suspicion.DNS_BROKEN:
             self._repair_dns()
 
-        log("[INFO] Auto-repair complete.")
+        DEFAULT_LOGGER.log("[INFO] Auto-repair complete.")
 
     def _repair_dns(self) -> None:
         if self.allow_resolv_conf_edit:

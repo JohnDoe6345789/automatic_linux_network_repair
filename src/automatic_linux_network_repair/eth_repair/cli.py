@@ -6,7 +6,7 @@ import os
 import sys
 
 from automatic_linux_network_repair.eth_repair.diagnostics import fuzzy_diagnose
-from automatic_linux_network_repair.eth_repair.logging_utils import log, setup_logging
+from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.menus import EthernetRepairMenu
 from automatic_linux_network_repair.eth_repair.probes import (
     interface_exists,
@@ -26,7 +26,7 @@ class EthernetRepairApp:
         self.auto = auto
 
     def run(self) -> int:
-        setup_logging(self.verbose)
+        DEFAULT_LOGGER.setup(self.verbose)
         if not self._ensure_root():
             return 1
 
@@ -35,10 +35,12 @@ class EthernetRepairApp:
             return 1
 
         self.interface = iface
-        log(f"[INFO] Ethernet repair helper starting for interface: {self.interface}")
+        DEFAULT_LOGGER.log(
+            f"[INFO] Ethernet repair helper starting for interface: {self.interface}"
+        )
         if self.dry_run:
-            log("[INFO] Dry-run mode enabled (no changes will be made).")
-        log("[INFO] Log file (if writable): /tmp/eth_repair.log")
+            DEFAULT_LOGGER.log("[INFO] Dry-run mode enabled (no changes will be made).")
+        DEFAULT_LOGGER.log("[INFO] Log file (if writable): /tmp/eth_repair.log")
 
         if self.auto or not sys.stdin.isatty():
             self._run_auto_repair()
@@ -47,7 +49,7 @@ class EthernetRepairApp:
         try:
             EthernetRepairMenu(iface=self.interface, dry_run=self.dry_run).run()
         except KeyboardInterrupt:
-            log("[INFO] Exiting menu (Ctrl-C).")
+            DEFAULT_LOGGER.log("[INFO] Exiting menu (Ctrl-C).")
         return 0
 
     def _ensure_root(self) -> bool:
@@ -57,7 +59,7 @@ class EthernetRepairApp:
                 "       Try: sudo python3 eth_repair_menu.py",
                 file=sys.stderr,
             )
-            log(
+            DEFAULT_LOGGER.log(
                 "[ERROR] Not running as root. "
                 "Re-run with: sudo python3 eth_repair_menu.py",
             )
@@ -70,13 +72,13 @@ class EthernetRepairApp:
             candidates = list_candidate_interfaces()
             if candidates:
                 new_iface = candidates[0]
-                log(
+                DEFAULT_LOGGER.log(
                     f"[INFO] Interface '{iface}' not found; "
                     f"auto-selected '{new_iface}'.",
                 )
                 return new_iface
 
-            log(
+            DEFAULT_LOGGER.log(
                 f"[ERROR] Interface '{iface}' not found and no "
                 "usable interfaces detected.",
             )
@@ -84,7 +86,7 @@ class EthernetRepairApp:
 
         if not interface_exists(iface):
             candidates = list_candidate_interfaces()
-            log(
+            DEFAULT_LOGGER.log(
                 f"[ERROR] Interface '{iface}' does not exist. "
                 f"Detected interfaces: {candidates}",
             )

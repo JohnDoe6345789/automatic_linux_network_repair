@@ -5,16 +5,16 @@ from __future__ import annotations
 import os
 
 from automatic_linux_network_repair.eth_repair.actions import apply_action
-from automatic_linux_network_repair.eth_repair.logging_utils import log
+from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.probes import read_resolv_conf_summary
-from automatic_linux_network_repair.eth_repair.shell import run_cmd
+from automatic_linux_network_repair.eth_repair.shell import DEFAULT_SHELL
 from automatic_linux_network_repair.eth_repair.types import ResolvConfMode
 
 
 def systemd_resolved_status() -> dict[str, bool | None]:
     """Return dict with keys: active (bool), enabled (bool or None if unknown)."""
-    active_res = run_cmd(["systemctl", "is-active", "systemd-resolved"])
-    enabled_res = run_cmd(["systemctl", "is-enabled", "systemd-resolved"])
+    active_res = DEFAULT_SHELL.run_cmd(["systemctl", "is-active", "systemd-resolved"])
+    enabled_res = DEFAULT_SHELL.run_cmd(["systemctl", "is-enabled", "systemd-resolved"])
 
     active = active_res.returncode == 0
     enabled: bool | None
@@ -105,13 +105,13 @@ def show_systemd_dns_status() -> None:
     status = systemd_resolved_status()
     mode, detail = detect_resolv_conf_mode()
 
-    log("")
-    log("=== systemd / DNS status ===")
-    log(f"systemd-resolved active : {status['active']}")
-    log(f"systemd-resolved enabled: {status['enabled']}")
-    log(f"/etc/resolv.conf mode   : {mode.value} ({detail})")
-    log("")
-    log("/etc/resolv.conf (first lines):")
+    DEFAULT_LOGGER.log("")
+    DEFAULT_LOGGER.log("=== systemd / DNS status ===")
+    DEFAULT_LOGGER.log(f"systemd-resolved active : {status['active']}")
+    DEFAULT_LOGGER.log(f"systemd-resolved enabled: {status['enabled']}")
+    DEFAULT_LOGGER.log(f"/etc/resolv.conf mode   : {mode.value} ({detail})")
+    DEFAULT_LOGGER.log("")
+    DEFAULT_LOGGER.log("/etc/resolv.conf (first lines):")
     for line in read_resolv_conf_summary():
-        log(f"  {line}")
-    log("=======================================")
+        DEFAULT_LOGGER.log(f"  {line}")
+    DEFAULT_LOGGER.log("=======================================")
