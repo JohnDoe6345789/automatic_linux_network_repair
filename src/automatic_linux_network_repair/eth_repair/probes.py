@@ -2,9 +2,7 @@
 
 from __future__ import annotations
 
-import os
 import shutil
-from typing import Dict, List
 
 from automatic_linux_network_repair.eth_repair.logging_utils import debug
 from automatic_linux_network_repair.eth_repair.shell import run_cmd
@@ -25,7 +23,7 @@ def interface_link_up(iface: str) -> bool:
     return False
 
 
-def interface_ip_addrs(iface: str, family: int) -> List[str]:
+def interface_ip_addrs(iface: str, family: int) -> list[str]:
     """Return a list of IP address strings for iface."""
     if family == 4:
         res = run_cmd(["ip", "-4", "addr", "show", "dev", iface])
@@ -35,7 +33,7 @@ def interface_ip_addrs(iface: str, family: int) -> List[str]:
     if res.returncode != 0:
         return []
 
-    addrs: List[str] = []
+    addrs: list[str] = []
     for line in res.stdout.splitlines():
         line = line.strip()
         if line.startswith("inet ") or line.startswith("inet6 "):
@@ -74,7 +72,7 @@ def dns_resolves(name: str = "deb.debian.org") -> bool:
     return bool(res.stdout.strip())
 
 
-def detect_network_managers() -> Dict[str, bool]:
+def detect_network_managers() -> dict[str, bool]:
     managers = {
         "NetworkManager": False,
         "systemd-networkd": False,
@@ -93,7 +91,7 @@ def detect_network_managers() -> Dict[str, bool]:
     return managers
 
 
-def list_candidate_interfaces() -> List[str]:
+def list_candidate_interfaces() -> list[str]:
     """
     Return real physical interface names, stripping @physdev suffixes
     and excluding common virtual/tunnel/docker links.
@@ -102,7 +100,7 @@ def list_candidate_interfaces() -> List[str]:
     if res.returncode != 0:
         return []
 
-    names: List[str] = []
+    names: list[str] = []
     for line in res.stdout.splitlines():
         parts = line.split(":")
         if len(parts) < 2:
@@ -131,7 +129,7 @@ def list_candidate_interfaces() -> List[str]:
     return names
 
 
-def list_all_interfaces_detailed() -> List[str]:
+def list_all_interfaces_detailed() -> list[str]:
     """Return lines from `ip -br addr show` for full adapter dump."""
     res = run_cmd(["ip", "-br", "addr", "show"])
     if res.returncode != 0:
@@ -139,11 +137,11 @@ def list_all_interfaces_detailed() -> List[str]:
     return [line.rstrip("\n") for line in res.stdout.splitlines()]
 
 
-def read_resolv_conf_summary(max_lines: int = 8) -> List[str]:
+def read_resolv_conf_summary(max_lines: int = 8) -> list[str]:
     """Return the first few lines of /etc/resolv.conf for debugging."""
     path = "/etc/resolv.conf"
     try:
-        with open(path, "r", encoding="utf-8", errors="replace") as fh:
+        with open(path, encoding="utf-8", errors="replace") as fh:
             lines = fh.readlines()
     except Exception as exc:  # noqa: BLE001 - log unexpected access failures
         return [f"[cannot read {path}: {exc}]"]

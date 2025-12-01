@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Dict
-
-from automatic_linux_network_repair.eth_repair.logging_utils import debug
 from automatic_linux_network_repair.eth_repair.dns_config import (
     detect_resolv_conf_mode,
     systemd_resolved_status,
 )
+from automatic_linux_network_repair.eth_repair.logging_utils import debug
 from automatic_linux_network_repair.eth_repair.probes import (
     dns_resolves,
     has_default_route,
@@ -21,7 +19,7 @@ from automatic_linux_network_repair.eth_repair.types import Diagnosis, ResolvCon
 
 
 def fuzzy_diagnose(iface: str) -> Diagnosis:
-    scores: Dict[Suspicion, float] = {
+    scores: dict[Suspicion, float] = {
         Suspicion.INTERFACE_MISSING: 0.0,
         Suspicion.LINK_DOWN: 0.0,
         Suspicion.NO_IPV4: 0.0,

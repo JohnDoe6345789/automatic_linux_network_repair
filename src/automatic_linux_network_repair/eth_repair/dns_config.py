@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import os
-from typing import Dict, Optional, Tuple
 
 from automatic_linux_network_repair.eth_repair.actions import apply_action
 from automatic_linux_network_repair.eth_repair.logging_utils import log
@@ -12,13 +11,13 @@ from automatic_linux_network_repair.eth_repair.shell import run_cmd
 from automatic_linux_network_repair.eth_repair.types import ResolvConfMode
 
 
-def systemd_resolved_status() -> Dict[str, Optional[bool]]:
+def systemd_resolved_status() -> dict[str, bool | None]:
     """Return dict with keys: active (bool), enabled (bool or None if unknown)."""
     active_res = run_cmd(["systemctl", "is-active", "systemd-resolved"])
     enabled_res = run_cmd(["systemctl", "is-enabled", "systemd-resolved"])
 
     active = active_res.returncode == 0
-    enabled: Optional[bool]
+    enabled: bool | None
     if enabled_res.returncode == 0:
         enabled = True
     elif enabled_res.returncode == 1:
@@ -29,7 +28,7 @@ def systemd_resolved_status() -> Dict[str, Optional[bool]]:
     return {"active": active, "enabled": enabled}
 
 
-def detect_resolv_conf_mode() -> Tuple[ResolvConfMode, str]:
+def detect_resolv_conf_mode() -> tuple[ResolvConfMode, str]:
     """
     Detect how /etc/resolv.conf is wired.
     Returns (mode, detail), where detail is target path or explanation.

@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Dict
-
 from automatic_linux_network_repair.eth_repair.actions import apply_action
 from automatic_linux_network_repair.eth_repair.dns_config import (
     backup_resolv_conf,
@@ -18,8 +16,8 @@ from automatic_linux_network_repair.eth_repair.probes import (
     interface_has_ipv4,
 )
 from automatic_linux_network_repair.eth_repair.types import (
-    Diagnosis,
     SUSPICION_LABELS,
+    Diagnosis,
     Suspicion,
 )
 
@@ -42,7 +40,7 @@ def repair_link_down(iface: str, dry_run: bool) -> None:
 
 def repair_no_ipv4(
     iface: str,
-    managers: Dict[str, bool],
+    managers: dict[str, bool],
     dry_run: bool,
 ) -> None:
     """
@@ -218,100 +216,76 @@ def repair_dns_interactive(dry_run: bool) -> None:
     Menu-driven DNS repair (option 6):
     - Always try systemd-resolved restart first.
     - If DNS still broken, ask user for permission before editing resolv.conf.
+    - If user agrees, create manual resolv.conf with public DNS.
     """
-    log("[INFO] Attempting DNS repair...")
-    repair_dns_core(allow_resolv_conf_edit=False, dry_run=dry_run)
-    if dns_resolves():
-        log("[INFO] DNS looks OK after service restart.")
+    log("[INFO] DNS repair menu...")
+
+    status = systemd_resolved_status()
+    log(f"systemd-resolved active : {status['active']}")
+    log(f"systemd-resolved enabled: {status['enabled']}")
+
+    apply_action(
+        "Restart systemd-resolved",
+        ["systemctl", "restart", "systemd-resolved"],
+        dry_run,
+    )
+    if not dry_run and dns_resolves():
+        log("[OK] DNS fixed after systemd-resolved restart.")
+        return
+
+    mode, detail = detect_resolv_conf_mode()
+    log(f"/etc/resolv.conf mode: {mode.value} ({detail})")
+
+    import sys
+
+    if not sys.stdin.isatty():
+        log(
+            "[INFO] Not running on a TTY; skipping manual resolv.conf rewrite.",
+        )
         return
 
     answer = input(
-        "DNS still appears broken. Overwrite /etc/resolv.conf with "
-        "public DNS (1.1.1.1 / 8.8.8.8)? [y/N]: ",
+        "Overwrite /etc/resolv.conf with public DNS (1.1.1.1 / 8.8.8.8)? [y/N]: "
     ).strip().lower()
-    if answer == "y":
-        repair_dns_core(allow_resolv_conf_edit=True, dry_run=dry_run)
-    else:
-        log("[INFO] Skipping resolv.conf rewrite at user request.")
-
-
-def repair_no_internet(dry_run: bool) -> None:
-    """
-    No ICMP to 8.8.8.8: try restarting the main manager.
-    """
-    managers = detect_network_managers()
-
-    if managers.get("NetworkManager", False):
-        apply_action(
-            "Restart NetworkManager",
-            ["systemctl", "restart", "NetworkManager"],
-            dry_run,
-        )
+    if answer != "y":
+        log("[INFO] User declined manual resolv.conf rewrite.")
         return
 
-    if managers.get("systemd-networkd", False):
-        apply_action(
-            "Restart systemd-networkd",
-            ["systemctl", "restart", "systemd-networkd"],
-            dry_run,
+    set_resolv_conf_manual_public(dry_run)
+    if not dry_run and dns_resolves():
+        log("[OK] DNS working after resolv.conf rewrite.")
+    elif not dry_run:
+        log(
+            "[WARN] DNS still failing after resolv.conf rewrite. "
+            "Check firewall / router.",
         )
-        return
-
-    if managers.get("ifupdown", False):
-        apply_action(
-            "Restart networking (ifupdown)",
-            ["systemctl", "restart", "networking"],
-            dry_run,
-        )
-        return
-
-    log(
-        "[INFO] No manager to restart for internet reachability; "
-        "check router / ISP / cabling.",
-    )
 
 
-def perform_repairs(
-    iface: str,
-    diagnosis: Diagnosis,
-    dry_run: bool,
-    allow_resolv_conf_edit: bool,
-) -> None:
-    """Run repairs according to diagnosis."""
-    log("")
-    log("=== Fuzzy diagnosis ===")
-    for susp, score in diagnosis.sorted_scores():
-        if score <= 0.0:
-            continue
-        label = SUSPICION_LABELS[susp]
-        log(f"{label:20s}: {score:.2f}")
+def repair_full(diagnosis: Diagnosis, dry_run: bool) -> None:
+    log("[INFO] Performing full auto-repair...")
 
-    log("")
-    log("=== Repair phase ===")
+    ordered = diagnosis.sorted_scores()
+    log("Suspicion scores:")
+    for suspicion, score in ordered:
+        label = SUSPICION_LABELS[suspicion]
+        log(f"  {label}: {score:.2f}")
 
-    if diagnosis.suspicion_scores.get(Suspicion.INTERFACE_MISSING, 0.0) > 0.5:
+    iface = diagnosis.iface
+    if diagnosis.top_suspicion == Suspicion.INTERFACE_MISSING:
         repair_interface_missing(iface)
-        return
+    elif diagnosis.top_suspicion == Suspicion.LINK_DOWN:
+        repair_link_down(iface, dry_run=dry_run)
+    elif diagnosis.top_suspicion == Suspicion.NO_IPV4:
+        managers = detect_network_managers()
+        repair_no_ipv4(iface, managers=managers, dry_run=dry_run)
+    elif diagnosis.top_suspicion == Suspicion.NO_ROUTE:
+        repair_no_route(dry_run=dry_run)
+    elif diagnosis.top_suspicion == Suspicion.NO_INTERNET:
+        log(
+            "[INFO] Unable to ping internet; if DHCP is OK, check upstream "
+            "gateway / firewall.",
+        )
+    elif diagnosis.top_suspicion == Suspicion.DNS_BROKEN:
+        repair_dns_fuzzy_with_confirm(dry_run=dry_run)
 
-    managers = detect_network_managers()
-
-    if diagnosis.suspicion_scores.get(Suspicion.LINK_DOWN, 0.0) > 0.4:
-        repair_link_down(iface, dry_run)
-
-    if diagnosis.suspicion_scores.get(Suspicion.NO_IPV4, 0.0) > 0.4:
-        repair_no_ipv4(iface, managers, dry_run)
-
-    if diagnosis.suspicion_scores.get(Suspicion.NO_ROUTE, 0.0) > 0.4:
-        repair_no_route(dry_run)
-
-    if diagnosis.suspicion_scores.get(Suspicion.NO_INTERNET, 0.0) > 0.4:
-        repair_no_internet(dry_run)
-
-    if diagnosis.suspicion_scores.get(Suspicion.DNS_BROKEN, 0.0) > 0.4:
-        if allow_resolv_conf_edit:
-            repair_dns_fuzzy_with_confirm(dry_run)
-        else:
-            repair_dns_core(
-                allow_resolv_conf_edit=False,
-                dry_run=dry_run,
-            )
+    log("[INFO] Full auto-repair complete.")

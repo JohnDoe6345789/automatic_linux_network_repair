@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from typing import List
 
 LOGGER = logging.getLogger("eth_repair")
 
@@ -12,7 +11,7 @@ def setup_logging(verbose: bool) -> None:
     """Configure logging to console and /tmp/eth_repair.log."""
     level = logging.DEBUG if verbose else logging.INFO
 
-    handlers: List[logging.Handler] = []
+    handlers: list[logging.Handler] = []
     console = logging.StreamHandler()
     handlers.append(console)
 
