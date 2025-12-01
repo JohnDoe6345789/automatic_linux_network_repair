@@ -23,13 +23,18 @@ def _apply_dns_common_stubs(monkeypatch):
     )
 
 
+def _record_dns_core_calls(calls: list[tuple[bool, bool]]):
+    def _record(allow_resolv_conf_edit, dry_run):
+        calls.append((allow_resolv_conf_edit, dry_run))
+
+    return _record
+
+
 def test_fuzzy_dns_skips_prompt_on_non_tty(monkeypatch):
     """The fuzzy DNS path should not prompt when stdin is not a TTY."""
 
     calls: list[tuple[bool, bool]] = []
-    monkeypatch.setattr(
-        repairs, "repair_dns_core", lambda allow_resolv_conf_edit, dry_run: calls.append((allow_resolv_conf_edit, dry_run))
-    )
+    monkeypatch.setattr(repairs, "repair_dns_core", _record_dns_core_calls(calls))
     monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
     _apply_dns_common_stubs(monkeypatch)
 
@@ -49,9 +54,7 @@ def test_fuzzy_dns_confirms_and_runs_full_repair(monkeypatch):
     """When the user confirms, the fuzzy flow should escalate to a full repair."""
 
     calls: list[tuple[bool, bool]] = []
-    monkeypatch.setattr(
-        repairs, "repair_dns_core", lambda allow_resolv_conf_edit, dry_run: calls.append((allow_resolv_conf_edit, dry_run))
-    )
+    monkeypatch.setattr(repairs, "repair_dns_core", _record_dns_core_calls(calls))
     monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
     _apply_dns_common_stubs(monkeypatch)
 

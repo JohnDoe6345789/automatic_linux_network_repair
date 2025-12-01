@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import sys
-from typing import Callable, TextIO
+from collections.abc import Callable
+from typing import TextIO
 
 from automatic_linux_network_repair.eth_repair.diagnostics import fuzzy_diagnose
 from automatic_linux_network_repair.eth_repair.dns_config import (
