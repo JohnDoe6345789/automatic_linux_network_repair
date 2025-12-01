@@ -102,20 +102,30 @@ class EthernetRepairApp:
         show_status(self.interface)
 
 
-def main(
-    interface: str = "eth0",
-    dry_run: bool = False,
-    verbose: bool = False,
-    auto: bool = False,
-) -> int:
-    app = EthernetRepairApp(
-        interface=interface,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto=auto,
-    )
-    return app.run()
+class EthernetRepairRunner:
+    """Facade for constructing and executing the repair application."""
+
+    def __init__(self) -> None:
+        self._app_class = EthernetRepairApp
+
+    def run(
+        self,
+        interface: str = "eth0",
+        dry_run: bool = False,
+        verbose: bool = False,
+        auto: bool = False,
+    ) -> int:
+        app = self._app_class(
+            interface=interface,
+            dry_run=dry_run,
+            verbose=verbose,
+            auto=auto,
+        )
+        return app.run()
+
+
+DEFAULT_RUNNER = EthernetRepairRunner()
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    raise SystemExit(DEFAULT_RUNNER.run())
