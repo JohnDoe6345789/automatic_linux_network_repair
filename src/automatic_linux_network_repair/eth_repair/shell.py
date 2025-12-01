@@ -59,12 +59,3 @@ class ShellRunner:
 
 
 DEFAULT_SHELL = ShellRunner()
-
-
-# Compatibility wrappers for existing procedural callers.
-def cmd_str(cmd: list[str]) -> str:
-    return DEFAULT_SHELL.cmd_str(cmd)
-
-
-def run_cmd(cmd: list[str], timeout: int = 5) -> CommandResult:
-    return DEFAULT_SHELL.run_cmd(cmd, timeout=timeout)

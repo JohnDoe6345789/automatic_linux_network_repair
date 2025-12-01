@@ -50,16 +50,3 @@ class LoggingManager:
 
 
 DEFAULT_LOGGER = LoggingManager()
-
-
-# Compatibility wrappers for existing procedural callers.
-def setup_logging(verbose: bool) -> None:
-    DEFAULT_LOGGER.setup(verbose)
-
-
-def log(msg: str) -> None:
-    DEFAULT_LOGGER.log(msg)
-
-
-def debug(msg: str) -> None:
-    DEFAULT_LOGGER.debug(msg)

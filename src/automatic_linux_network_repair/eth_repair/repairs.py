@@ -308,27 +308,3 @@ class EthernetRepairCoordinator:
             allow_resolv_conf_edit=False,
             dry_run=self.dry_run,
         )
-
-
-def perform_repairs(
-    iface: str,
-    diagnosis: Diagnosis,
-    dry_run: bool,
-    allow_resolv_conf_edit: bool,
-) -> None:
-    """Compatibility wrapper for procedural callers."""
-    coordinator = EthernetRepairCoordinator(
-        iface=iface,
-        dry_run=dry_run,
-        allow_resolv_conf_edit=allow_resolv_conf_edit,
-    )
-    coordinator.perform_repairs(diagnosis)
-
-
-def repair_full(diagnosis: Diagnosis, dry_run: bool) -> None:
-    coordinator = EthernetRepairCoordinator(
-        iface=diagnosis.iface,
-        dry_run=dry_run,
-        allow_resolv_conf_edit=True,
-    )
-    coordinator.perform_repairs(diagnosis)
