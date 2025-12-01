@@ -18,4 +18,4 @@ services:
 
 networks:
   default:
-    name: CHANGEME_network
+    name: automatic_linux_network_repair_network
