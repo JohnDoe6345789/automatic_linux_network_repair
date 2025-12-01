@@ -35,14 +35,24 @@ SUSPICION_LABELS: dict[Suspicion, str] = {
 
 @dataclasses.dataclass
 class Diagnosis:
+    """Capture the results of a fuzzy connectivity diagnosis."""
+
+    iface: str
     suspicion_scores: dict[Suspicion, float]
 
     def sorted_scores(self) -> list[tuple[Suspicion, float]]:
+        """Return suspicion scores ordered by severity (highest first)."""
         return sorted(
             self.suspicion_scores.items(),
             key=lambda item: item[1],
             reverse=True,
         )
+
+    @property
+    def top_suspicion(self) -> Suspicion:
+        """Convenience accessor for the most likely root cause."""
+        ordered = self.sorted_scores()
+        return ordered[0][0] if ordered else Suspicion.NO_INTERNET
 
 
 class ResolvConfMode(enum.Enum):

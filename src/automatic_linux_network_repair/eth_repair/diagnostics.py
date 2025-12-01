@@ -55,7 +55,7 @@ def fuzzy_diagnose(iface: str) -> Diagnosis:
 
     if not exists:
         scores[Suspicion.INTERFACE_MISSING] = 1.0
-        return Diagnosis(scores)
+        return Diagnosis(iface, scores)
 
     if not link_up:
         scores[Suspicion.LINK_DOWN] = 0.8
@@ -85,4 +85,4 @@ def fuzzy_diagnose(iface: str) -> Diagnosis:
 
         scores[Suspicion.DNS_BROKEN] = dns_score
 
-    return Diagnosis(scores)
+    return Diagnosis(iface, scores)
