@@ -1,0 +1,195 @@
+[project]
+name = "automatic_linux_network_repair"
+version = "0.1.0"
+description = "Automatic Linux Network Repair"
+readme = "README.md"
+authors = [
+  {name = "Richard Ward", email = "richard.ward637@outlook.com"}
+]
+maintainers = [
+  {name = "Richard Ward", email = "richard.ward637@outlook.com"}
+]
+classifiers = [
+    # TODO
+]
+license = {text = "MIT"}
+dependencies = [
+  "typer"
+]
+requires-python = ">= 3.10"
+
+[project.optional-dependencies]
+test = [
+    "coverage",  # testing
+    "pytest",  # testing
+    "ruff",  # linting
+    "ty", # checking types
+    "ipdb", # debugging
+    "python-dotenv",
+    "requests",
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "lxml",
+    "torch",
+    "torchvision",
+    "torchaudio",
+    "tensorflow",
+    "keras",
+    "jax",
+    "flax",
+    "transformers",
+    "accelerate",
+    "sentencepiece",
+    "onnx",
+    "onnxruntime",
+    "diffusers",
+    "pillow",
+    "numpy",
+    "scipy",
+
+    # Language and text parsing
+    "spacy",
+    "nltk",
+    "gensim",
+    "beautifulsoup4",
+    "lxml",
+    "regex",
+    "tqdm",
+    "textblob",
+    "rapidfuzz",
+    
+    # Game creation
+    "pygame",
+    "pyglet",
+    "arcade",
+    
+    # Web development
+    "flask",
+    "django",
+    "fastapi",
+    "uvicorn",
+    "starlette",
+    "jinja2",
+    "requests",
+    "httpx",
+    
+    # Video editing / processing
+    "opencv-python",
+    "moviepy",
+    "ffmpeg-python",
+    "imageio",
+    "pillow",
+    
+    # Audio creation
+    "pydub",
+    "soundfile",
+    "librosa",
+    "wave",
+    "scikits.audiolab",
+    
+    # Reverse engineering
+    "capstone",
+    "keystone-engine",
+    "unicorn",
+    "lief",
+    
+    # Networking / TCP/UDP
+    "scapy",
+    "aiohttp",
+    "websockets",
+    "socketio",
+    
+    # Data / util
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "plotly",
+    "pyyaml",
+    "rich",
+
+    # GUI
+    "pyqt6",
+
+    # Web
+    "bottle",
+    "pyramid",
+    "django",
+
+    # Fun
+    "TTS",
+
+    # 3D
+    "trimesh",
+    "pyvista",
+    "open3d",
+    "pygalmesh",
+    "cadquery",
+    "pythonocc-core",
+    "meshio",
+    "assimp",
+    "sdf"
+]
+
+[project.urls]
+bugs = "https://github.com/JohnDoe6345789/automatic_linux_network_repair/issues"
+changelog = "https://github.com/JohnDoe6345789/automatic_linux_network_repair/blob/master/changelog.md"
+homepage = "https://github.com/JohnDoe6345789/automatic_linux_network_repair"
+
+[project.scripts]
+automatic_linux_network_repair = "automatic_linux_network_repair.cli:app"
+
+[tool.ty]
+# All rules are enabled as "error" by default; no need to specify unless overriding.
+# Example override: relax a rule for the entire project (uncomment if needed).
+# rules.TY015 = "warn"  # For invalid-argument-type, warn instead of error.
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+
+[tool.uv]
+package = true
+
+# -------------------------------------------------------------------
+# Poetry configuration (added)
+# -------------------------------------------------------------------
+
+[tool.poetry]
+name = "automatic_linux_network_repair"
+version = "0.1.0"
+description = "Automatic Linux Network Repair"
+readme = "README.md"
+license = "MIT"
+authors = ["Richard Ward <richard.ward637@outlook.com>"]
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+typer = "*"
+
+[tool.poetry.group.dev.dependencies]
+coverage = "*"
+pytest = "*"
+ruff = "*"
+ty = "*"
+ipdb = "*"
+black = "*"
+mypy = "*"
+flake8 = "*"
+pyinstaller = "*"
+
+[tool.poetry.scripts]
+automatic_linux_network_repair = "automatic_linux_network_repair.cli:app"
+
+[build-system]
+requires = ["poetry-core>=1.9.0"]
+build-backend = "poetry.core.masonry.api"

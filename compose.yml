@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  automatic_linux_network_repair_service:
+    image: automatic_linux_network_repair:latest
+    container_name: automatic_linux_network_repair_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - APP_ENV=automatic_linux_network_repair_env
+      - API_KEY=automatic_linux_network_repair_key
+    volumes:
+      - ./automatic_linux_network_repair_data:/app/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+networks:
+  default:
+    name: CHANGEME_network
