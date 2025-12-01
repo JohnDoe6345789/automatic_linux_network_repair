@@ -4,18 +4,17 @@ from __future__ import annotations
 
 import shlex
 import subprocess
-from typing import List
 
 from automatic_linux_network_repair.eth_repair.logging_utils import debug
 from automatic_linux_network_repair.eth_repair.types import CommandResult
 
 
-def cmd_str(cmd: List[str]) -> str:
+def cmd_str(cmd: list[str]) -> str:
     return " ".join(shlex.quote(part) for part in cmd)
 
 
 def run_cmd(
-    cmd: List[str],
+    cmd: list[str],
     timeout: int = 5,
 ) -> CommandResult:
     """Run command and capture stdout/stderr."""
@@ -24,8 +23,7 @@ def run_cmd(
         proc = subprocess.run(
             cmd,
             stdin=subprocess.DEVNULL,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             timeout=timeout,
             text=True,
         )

@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import dataclasses
 import enum
-from typing import Dict, List, Tuple
 
 
 @dataclasses.dataclass
 class CommandResult:
-    cmd: List[str]
+    cmd: list[str]
     returncode: int
     stdout: str
     stderr: str
@@ -24,7 +23,7 @@ class Suspicion(enum.Enum):
     DNS_BROKEN = "dns_broken"
 
 
-SUSPICION_LABELS: Dict[Suspicion, str] = {
+SUSPICION_LABELS: dict[Suspicion, str] = {
     Suspicion.INTERFACE_MISSING: "Interface missing",
     Suspicion.LINK_DOWN: "Link down",
     Suspicion.NO_IPV4: "No IPv4 address",
@@ -36,9 +35,9 @@ SUSPICION_LABELS: Dict[Suspicion, str] = {
 
 @dataclasses.dataclass
 class Diagnosis:
-    suspicion_scores: Dict[Suspicion, float]
+    suspicion_scores: dict[Suspicion, float]
 
-    def sorted_scores(self) -> List[Tuple[Suspicion, float]]:
+    def sorted_scores(self) -> list[tuple[Suspicion, float]]:
         return sorted(
             self.suspicion_scores.items(),
             key=lambda item: item[1],

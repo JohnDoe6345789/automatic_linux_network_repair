@@ -24,7 +24,6 @@ from __future__ import annotations
 import platform
 import shutil
 import subprocess
-import sys
 from typing import Final
 
 import typer
@@ -200,18 +199,10 @@ def install_just(
         )
         raise typer.Exit(code=0)
 
-    typer.secho(
-        "Automatic installation failed or `just` is still not available on PATH.",
-        fg=typer.colors.RED,
-    )
+    typer.echo("Automatic installation failed. Please install manually.")
     _print_manual_instructions()
     raise typer.Exit(code=1)
 
 
-def main() -> None:
-    """Entry point for `python -m` usage."""
-    app()
-
-
 if __name__ == "__main__":
-    main()
+    app()

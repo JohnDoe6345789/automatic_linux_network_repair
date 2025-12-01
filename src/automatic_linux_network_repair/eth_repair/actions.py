@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from typing import List
-
 from automatic_linux_network_repair.eth_repair.logging_utils import log
 from automatic_linux_network_repair.eth_repair.shell import cmd_str, run_cmd
 
 
-def apply_action(desc: str, cmd: List[str], dry_run: bool) -> bool:
+def apply_action(desc: str, cmd: list[str], dry_run: bool) -> bool:
     log(f"[ACTION] {desc}")
     log(f"         {cmd_str(cmd)}")
     if dry_run:
