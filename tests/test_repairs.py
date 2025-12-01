@@ -16,6 +16,13 @@ def _stub_mode(label: str):
     return type("Mode", (), {"value": label})()
 
 
+def _apply_dns_common_stubs(monkeypatch):
+    monkeypatch.setattr(repairs, "detect_resolv_conf_mode", lambda: (_stub_mode("stub"), "detail"))
+    monkeypatch.setattr(
+        repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False}
+    )
+
+
 def test_fuzzy_dns_skips_prompt_on_non_tty(monkeypatch):
     """The fuzzy DNS path should not prompt when stdin is not a TTY."""
 
@@ -24,10 +31,7 @@ def test_fuzzy_dns_skips_prompt_on_non_tty(monkeypatch):
         repairs, "repair_dns_core", lambda allow_resolv_conf_edit, dry_run: calls.append((allow_resolv_conf_edit, dry_run))
     )
     monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
-    monkeypatch.setattr(repairs, "detect_resolv_conf_mode", lambda: (_stub_mode("stub"), "detail"))
-    monkeypatch.setattr(
-        repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False}
-    )
+    _apply_dns_common_stubs(monkeypatch)
 
     effects = repairs.DnsRepairSideEffects(
         logger=RecordingLogger(),
@@ -49,10 +53,7 @@ def test_fuzzy_dns_confirms_and_runs_full_repair(monkeypatch):
         repairs, "repair_dns_core", lambda allow_resolv_conf_edit, dry_run: calls.append((allow_resolv_conf_edit, dry_run))
     )
     monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
-    monkeypatch.setattr(repairs, "detect_resolv_conf_mode", lambda: (_stub_mode("stub"), "detail"))
-    monkeypatch.setattr(
-        repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False}
-    )
+    _apply_dns_common_stubs(monkeypatch)
 
     effects = repairs.DnsRepairSideEffects(
         logger=RecordingLogger(),
@@ -71,10 +72,7 @@ def test_dns_menu_declines_manual_rewrite_on_non_tty(monkeypatch):
 
     monkeypatch.setattr(repairs, "apply_action", lambda *args, **kwargs: None)
     monkeypatch.setattr(repairs, "dns_resolves", lambda: False)
-    monkeypatch.setattr(repairs, "detect_resolv_conf_mode", lambda: (_stub_mode("stub"), "detail"))
-    monkeypatch.setattr(
-        repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False}
-    )
+    _apply_dns_common_stubs(monkeypatch)
 
     effects = repairs.DnsRepairSideEffects(
         logger=RecordingLogger(),
