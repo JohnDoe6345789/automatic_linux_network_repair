@@ -3,21 +3,14 @@
 import io
 
 from automatic_linux_network_repair.eth_repair import menus
-
-
-class _RecordingLogger:
-    def __init__(self):
-        self.messages: list[str] = []
-
-    def log(self, msg: str) -> None:
-        self.messages.append(msg)
+from tests.helpers import RecordingLogger
 
 
 def test_side_effects_render_main_menu_and_capture_input():
     outputs = io.StringIO()
     choices = iter(['5'])
     effects = menus.EthernetMenuSideEffects(
-        logger=_RecordingLogger(),
+        logger=RecordingLogger(),
         stdout=outputs,
         input_func=lambda prompt: next(choices),
     )
@@ -31,7 +24,7 @@ def test_side_effects_render_main_menu_and_capture_input():
 
 
 def test_menu_handles_invalid_choice_and_exit(monkeypatch):
-    logs = _RecordingLogger()
+    logs = RecordingLogger()
     outputs = io.StringIO()
     choices = iter(['11', '10'])
     effects = menus.EthernetMenuSideEffects(
@@ -48,7 +41,7 @@ def test_menu_handles_invalid_choice_and_exit(monkeypatch):
 
 
 def test_menu_logs_advanced_menu_exit(monkeypatch):
-    logs = _RecordingLogger()
+    logs = RecordingLogger()
     outputs = io.StringIO()
     choices = iter(['9', '7', '10'])
     effects = menus.EthernetMenuSideEffects(

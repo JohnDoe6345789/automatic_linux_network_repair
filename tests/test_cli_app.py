@@ -3,6 +3,7 @@
 import io
 
 from automatic_linux_network_repair.eth_repair import cli
+from tests.helpers import RecordingLogger
 
 
 class _DummyApp(cli.EthernetRepairApp):
@@ -12,25 +13,10 @@ class _DummyApp(cli.EthernetRepairApp):
         super().__init__(interface=interface, dry_run=False, verbose=False, auto=False)
 
 
-class _RecordingLogger:
-    def __init__(self):
-        self.messages: list[str] = []
-        self.setup_calls: list[bool] = []
-
-    def setup(self, verbose: bool) -> None:
-        self.setup_calls.append(verbose)
-
-    def log(self, msg: str) -> None:
-        self.messages.append(msg)
-
-    def debug(self, msg: str) -> None:  # pragma: no cover - simple passthrough
-        self.messages.append(f"DEBUG:{msg}")
-
-
 class _RecordingEffects(cli.EthernetRepairSideEffects):
     def __init__(self):
         super().__init__(
-            logger=_RecordingLogger(),
+            logger=RecordingLogger(),
             stdout=io.StringIO(),
             stderr=io.StringIO(),
         )

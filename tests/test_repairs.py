@@ -1,14 +1,7 @@
 """Tests for DNS repair helpers and side effects."""
 
 from automatic_linux_network_repair.eth_repair import repairs
-
-
-class _RecordingLogger:
-    def __init__(self):
-        self.messages: list[str] = []
-
-    def log(self, msg: str) -> None:
-        self.messages.append(msg)
+from tests.helpers import RecordingLogger
 
 
 class _StubStdin:
@@ -37,7 +30,7 @@ def test_fuzzy_dns_skips_prompt_on_non_tty(monkeypatch):
     )
 
     effects = repairs.DnsRepairSideEffects(
-        logger=_RecordingLogger(),
+        logger=RecordingLogger(),
         stdin=_StubStdin(False),
         input_func=lambda prompt: "y",
     )
@@ -62,7 +55,7 @@ def test_fuzzy_dns_confirms_and_runs_full_repair(monkeypatch):
     )
 
     effects = repairs.DnsRepairSideEffects(
-        logger=_RecordingLogger(),
+        logger=RecordingLogger(),
         stdin=_StubStdin(True),
         input_func=lambda prompt: "y",
     )
@@ -84,7 +77,7 @@ def test_dns_menu_declines_manual_rewrite_on_non_tty(monkeypatch):
     )
 
     effects = repairs.DnsRepairSideEffects(
-        logger=_RecordingLogger(),
+        logger=RecordingLogger(),
         stdin=_StubStdin(False),
         input_func=lambda prompt: "n",
     )
