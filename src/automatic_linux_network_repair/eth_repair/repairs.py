@@ -126,6 +126,35 @@ def repair_no_route(dry_run: bool) -> None:
     )
 
 
+def repair_no_internet(dry_run: bool) -> None:
+    """Attempt general connectivity recovery when ICMP fails."""
+
+    DEFAULT_LOGGER.log("[INFO] Attempting general internet connectivity repair.")
+    managers = detect_network_managers()
+
+    if managers.get("NetworkManager", False):
+        apply_action(
+            "Restart NetworkManager", ["systemctl", "restart", "NetworkManager"], dry_run
+        )
+        return
+
+    if managers.get("systemd-networkd", False):
+        apply_action(
+            "Restart systemd-networkd", ["systemctl", "restart", "systemd-networkd"], dry_run
+        )
+        return
+
+    if managers.get("ifupdown", False):
+        apply_action(
+            "Restart networking (ifupdown)", ["systemctl", "restart", "networking"], dry_run
+        )
+        return
+
+    DEFAULT_LOGGER.log(
+        "[INFO] No known network manager detected; perform manual investigation (ping, firewall, modem)."
+    )
+
+
 def repair_dns_core(allow_resolv_conf_edit: bool, dry_run: bool) -> None:
     """
     Core DNS repair logic.
