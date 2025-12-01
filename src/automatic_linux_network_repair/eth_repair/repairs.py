@@ -261,31 +261,74 @@ def repair_dns_interactive(dry_run: bool) -> None:
         )
 
 
-def repair_full(diagnosis: Diagnosis, dry_run: bool) -> None:
-    log("[INFO] Performing full auto-repair...")
+class EthernetRepairCoordinator:
+    """Coordinate repair strategies for a given interface and mode."""
 
-    ordered = diagnosis.sorted_scores()
-    log("Suspicion scores:")
-    for suspicion, score in ordered:
-        label = SUSPICION_LABELS[suspicion]
-        log(f"  {label}: {score:.2f}")
+    def __init__(self, iface: str, dry_run: bool, allow_resolv_conf_edit: bool):
+        self.iface = iface
+        self.dry_run = dry_run
+        self.allow_resolv_conf_edit = allow_resolv_conf_edit
 
-    iface = diagnosis.iface
-    if diagnosis.top_suspicion == Suspicion.INTERFACE_MISSING:
-        repair_interface_missing(iface)
-    elif diagnosis.top_suspicion == Suspicion.LINK_DOWN:
-        repair_link_down(iface, dry_run=dry_run)
-    elif diagnosis.top_suspicion == Suspicion.NO_IPV4:
-        managers = detect_network_managers()
-        repair_no_ipv4(iface, managers=managers, dry_run=dry_run)
-    elif diagnosis.top_suspicion == Suspicion.NO_ROUTE:
-        repair_no_route(dry_run=dry_run)
-    elif diagnosis.top_suspicion == Suspicion.NO_INTERNET:
-        log(
-            "[INFO] Unable to ping internet; if DHCP is OK, check upstream "
-            "gateway / firewall.",
+    def perform_repairs(self, diagnosis: Diagnosis) -> None:
+        """Apply the most appropriate fix for a diagnosis."""
+        log("[INFO] Performing auto-repair...")
+
+        ordered = diagnosis.sorted_scores()
+        log("Suspicion scores:")
+        for suspicion, score in ordered:
+            label = SUSPICION_LABELS[suspicion]
+            log(f"  {label}: {score:.2f}")
+
+        suspicion = diagnosis.top_suspicion
+        if suspicion == Suspicion.INTERFACE_MISSING:
+            repair_interface_missing(self.iface)
+        elif suspicion == Suspicion.LINK_DOWN:
+            repair_link_down(self.iface, dry_run=self.dry_run)
+        elif suspicion == Suspicion.NO_IPV4:
+            managers = detect_network_managers()
+            repair_no_ipv4(self.iface, managers=managers, dry_run=self.dry_run)
+        elif suspicion == Suspicion.NO_ROUTE:
+            repair_no_route(dry_run=self.dry_run)
+        elif suspicion == Suspicion.NO_INTERNET:
+            log(
+                "[INFO] Unable to ping internet; if DHCP is OK, check "
+                "upstream gateway / firewall.",
+            )
+        elif suspicion == Suspicion.DNS_BROKEN:
+            self._repair_dns()
+
+        log("[INFO] Auto-repair complete.")
+
+    def _repair_dns(self) -> None:
+        if self.allow_resolv_conf_edit:
+            repair_dns_fuzzy_with_confirm(dry_run=self.dry_run)
+            return
+
+        repair_dns_core(
+            allow_resolv_conf_edit=False,
+            dry_run=self.dry_run,
         )
-    elif diagnosis.top_suspicion == Suspicion.DNS_BROKEN:
-        repair_dns_fuzzy_with_confirm(dry_run=dry_run)
 
-    log("[INFO] Full auto-repair complete.")
+
+def perform_repairs(
+    iface: str,
+    diagnosis: Diagnosis,
+    dry_run: bool,
+    allow_resolv_conf_edit: bool,
+) -> None:
+    """Compatibility wrapper for procedural callers."""
+    coordinator = EthernetRepairCoordinator(
+        iface=iface,
+        dry_run=dry_run,
+        allow_resolv_conf_edit=allow_resolv_conf_edit,
+    )
+    coordinator.perform_repairs(diagnosis)
+
+
+def repair_full(diagnosis: Diagnosis, dry_run: bool) -> None:
+    coordinator = EthernetRepairCoordinator(
+        iface=diagnosis.iface,
+        dry_run=dry_run,
+        allow_resolv_conf_edit=True,
+    )
+    coordinator.perform_repairs(diagnosis)
