@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """
 Typer-based helper to check and install `just`.
 
