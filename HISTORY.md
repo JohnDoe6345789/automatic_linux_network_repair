@@ -1,5 +1,9 @@
 # History
 
+## 0.3
+
+* AppImage fixes
+
 ## 0.2
 
 * AppImage fixes
