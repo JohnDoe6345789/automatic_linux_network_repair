@@ -13,6 +13,7 @@ from automatic_linux_network_repair.eth_repair.probes import (
     list_all_interfaces_detailed,
     ping_host,
     read_resolv_conf_summary,
+    tailscale_status,
 )
 
 
@@ -28,6 +29,7 @@ def show_status(iface: str) -> None:
     ping_ip_ok = ping_host("8.8.8.8")
     dns_ok = dns_resolves()
     managers = detect_network_managers()
+    tailscale = tailscale_status()
 
     DEFAULT_LOGGER.log(f"Interface:           {iface}")
     DEFAULT_LOGGER.log(f"Exists:              {exists}")
@@ -42,6 +44,19 @@ def show_status(iface: str) -> None:
     DEFAULT_LOGGER.log("Network managers:")
     for name, active in managers.items():
         DEFAULT_LOGGER.log(f"  {name:17s}: {'active' if active else 'inactive'}")
+    DEFAULT_LOGGER.log("")
+    DEFAULT_LOGGER.log("Tailscale:")
+    DEFAULT_LOGGER.log(
+        f"  Installed        : {'yes' if tailscale['installed'] else 'no'}"
+    )
+    DEFAULT_LOGGER.log(
+        f"  tailscaled active: {'yes' if tailscale['active'] else 'no'}"
+    )
+    if tailscale["installed"] and not tailscale["active"]:
+        DEFAULT_LOGGER.log(
+            "  Hint: tailscale installed but inactive; run 'sudo tailscale up' "
+            "if you expect VPN connectivity."
+        )
     DEFAULT_LOGGER.log("")
     DEFAULT_LOGGER.log("/etc/resolv.conf (first lines):")
     for line in read_resolv_conf_summary():
