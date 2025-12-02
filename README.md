@@ -84,6 +84,8 @@ automatic_linux_network_repair systemd-panel --dump-file /tmp/systemd_dump.txt -
 # Launch an interactive editor, choose a file + option, and write a drop-in
 sudo automatic_linux_network_repair systemd-edit
 
+# The editor shows a preview and asks for confirmation before writing to disk
+
 # Use a pre-generated dump and override where the drop-in is written
 automatic_linux_network_repair systemd-edit --dump-file /tmp/systemd_dump.txt --dropin-dir /tmp/dropins
 ```

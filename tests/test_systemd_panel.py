@@ -198,7 +198,7 @@ def test_build_dropin_path_uses_override_dir():
 
 
 def test_interactive_edit_systemd_dump_writes_dropin(tmp_path):
-    responses = iter(["2", "1", "1", "new-ignore"])
+    responses = iter(["2", "1", "1", "new-ignore", "y"])
     console = Console(record=True, force_terminal=False)
 
     dropin_path = systemd_panel.interactive_edit_systemd_dump(
@@ -213,6 +213,21 @@ def test_interactive_edit_systemd_dump_writes_dropin(tmp_path):
     assert expected_path.read_text() == "[Login]\nHandlePowerKey=new-ignore\n"
 
 
+def test_interactive_edit_systemd_dump_respects_abort(tmp_path):
+    responses = iter(["2", "1", "1", "new-val", "n"])
+    console = Console(record=True, force_terminal=False)
+
+    dropin_path = systemd_panel.interactive_edit_systemd_dump(
+        SYSTEMD_DUMP,
+        dropin_dir=str(tmp_path),
+        prompt=lambda message: next(responses),
+        console=console,
+    )
+
+    assert dropin_path is None
+    assert list(tmp_path.glob("*")) == []
+
+
 def test_cli_systemd_edit_writes_dropin(tmp_path):
     dump_path = tmp_path / "dump.txt"
     dump_path.write_text(SYSTEMD_DUMP)
@@ -222,7 +237,7 @@ def test_cli_systemd_edit_writes_dropin(tmp_path):
     result = runner.invoke(
         app,
         ["systemd-edit", "--dump-file", str(dump_path), "--dropin-dir", str(dropin_dir)],
-        input="2\n1\n1\nnew-ignore\n",
+        input="2\n1\n1\nnew-ignore\ny\n",
     )
 
     expected_path = dropin_dir / "99-automatic-linux-network-repair.conf"

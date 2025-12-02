@@ -346,11 +346,18 @@ def interactive_edit_systemd_dump(
     new_value = prompt_fn(f"Enter new value for {key} (current: {active_settings[section][key]}): ")
 
     dropin_path = _build_dropin_path(target_path, override_dir=dropin_dir)
-    os.makedirs(os.path.dirname(dropin_path), exist_ok=True)
     content = f"[{section}]\n{key}={new_value}\n"
+
+    emit("Preview drop-in content:")
+    emit(content)
+    confirmation = prompt_fn(f"Write drop-in to {dropin_path}? [y/N]: ").strip().lower()
+    if not confirmation.startswith("y"):
+        emit("Aborted; no drop-in written.")
+        return None
+
+    os.makedirs(os.path.dirname(dropin_path), exist_ok=True)
     with open(dropin_path, "w", encoding="utf-8") as handle:
         handle.write(content)
 
     emit(f"Wrote drop-in to {dropin_path}")
-    emit(content)
     return dropin_path
