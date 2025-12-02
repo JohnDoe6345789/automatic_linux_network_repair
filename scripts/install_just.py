@@ -89,15 +89,16 @@ def _print_manual_instructions() -> None:
 def _auto_install_linux() -> bool:
     """Try to install `just` on Linux, return True on success."""
     if shutil.which("apt"):
-        return _run_command(["sudo", "apt", "update"]) == 0 and _run_command(
-            ["sudo", "apt", "install", "-y", "just"],
-        ) == 0
-
-    if shutil.which("curl"):
         return (
-            _run_command(["bash", "-c", "curl -s https://just.systems/install.sh | bash"])
+            _run_command(["sudo", "apt", "update"]) == 0
+            and _run_command(
+                ["sudo", "apt", "install", "-y", "just"],
+            )
             == 0
         )
+
+    if shutil.which("curl"):
+        return _run_command(["bash", "-c", "curl -s https://just.systems/install.sh | bash"]) == 0
 
     return False
 

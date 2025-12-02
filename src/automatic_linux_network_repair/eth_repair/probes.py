@@ -109,13 +109,9 @@ def tailscale_status() -> dict[str, bool]:
 def detect_active_vpn_services() -> list[str]:
     """Return a sorted list of running VPN-related systemd services."""
 
-    res = DEFAULT_SHELL.run_cmd(
-        ["systemctl", "list-units", "--type=service", "--state=running"]
-    )
+    res = DEFAULT_SHELL.run_cmd(["systemctl", "list-units", "--type=service", "--state=running"])
     if res.returncode != 0 or not res.stdout:
-        DEFAULT_LOGGER.debug(
-            f"VPN service detection failed rc={res.returncode}: {res.stderr!r}"
-        )
+        DEFAULT_LOGGER.debug(f"VPN service detection failed rc={res.returncode}: {res.stderr!r}")
         return []
 
     keywords = ("vpn", "wireguard", "wg-quick", "zerotier")

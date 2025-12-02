@@ -47,8 +47,7 @@ class ShellRunner:
             )
 
         self.logger.debug(
-            f"Command rc={proc.returncode} stdout={proc.stdout!r} "
-            f"stderr={proc.stderr!r}",
+            f"Command rc={proc.returncode} stdout={proc.stdout!r} stderr={proc.stderr!r}",
         )
         return CommandResult(
             cmd=cmd,

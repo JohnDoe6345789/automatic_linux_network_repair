@@ -33,7 +33,7 @@ from automatic_linux_network_repair.eth_repair.status import (
 
 
 class EthernetMenuSideEffects:
-    '''Handle all printing, prompting, and logging for menu interactions.'''
+    """Handle all printing, prompting, and logging for menu interactions."""
 
     def __init__(
         self,
@@ -46,61 +46,61 @@ class EthernetMenuSideEffects:
         self._input = input_func or input
 
     def show_main_menu(self, current_iface: str) -> str:
-        print('', file=self.stdout)
-        print('========== Ethernet repair menu ==========', file=self.stdout)
-        print(f'Current interface: {current_iface}', file=self.stdout)
-        print('', file=self.stdout)
-        print('1) Show interface & connectivity status', file=self.stdout)
-        print('2) Run FULL fuzzy auto-diagnose & repair', file=self.stdout)
-        print('3) Bring link UP on current interface', file=self.stdout)
-        print('4) Obtain IPv4 / renew DHCP on interface', file=self.stdout)
-        print('5) Restart network stack (routing / services)', file=self.stdout)
-        print('6) Attempt DNS repair (may edit resolv.conf)', file=self.stdout)
-        print('7) Change interface', file=self.stdout)
-        print('8) Show ALL adapters & addresses', file=self.stdout)
-        print('9) Advanced systemd / DNS controls', file=self.stdout)
-        print('10) Quit', file=self.stdout)
-        print('==========================================', file=self.stdout)
-        return self._input('Select an option [1-10]: ').strip()
+        print("", file=self.stdout)
+        print("========== Ethernet repair menu ==========", file=self.stdout)
+        print(f"Current interface: {current_iface}", file=self.stdout)
+        print("", file=self.stdout)
+        print("1) Show interface & connectivity status", file=self.stdout)
+        print("2) Run FULL fuzzy auto-diagnose & repair", file=self.stdout)
+        print("3) Bring link UP on current interface", file=self.stdout)
+        print("4) Obtain IPv4 / renew DHCP on interface", file=self.stdout)
+        print("5) Restart network stack (routing / services)", file=self.stdout)
+        print("6) Attempt DNS repair (may edit resolv.conf)", file=self.stdout)
+        print("7) Change interface", file=self.stdout)
+        print("8) Show ALL adapters & addresses", file=self.stdout)
+        print("9) Advanced systemd / DNS controls", file=self.stdout)
+        print("10) Quit", file=self.stdout)
+        print("==========================================", file=self.stdout)
+        return self._input("Select an option [1-10]: ").strip()
 
     def show_invalid_main_choice(self) -> None:
-        print('Invalid choice, please select 1-10.', file=self.stdout)
+        print("Invalid choice, please select 1-10.", file=self.stdout)
 
     def show_interfaces(self, names: list[str]) -> None:
-        print('', file=self.stdout)
-        print('Available interfaces:', file=self.stdout)
+        print("", file=self.stdout)
+        print("Available interfaces:", file=self.stdout)
         for idx, name in enumerate(names, start=1):
-            print(f'  {idx}) {name}', file=self.stdout)
+            print(f"  {idx}) {name}", file=self.stdout)
 
     def prompt_new_interface(self) -> str:
         return self._input(
-            'Enter interface name to use (or blank to keep current): ',
+            "Enter interface name to use (or blank to keep current): ",
         ).strip()
 
     def log_switched_interface(self, iface: str) -> None:
-        self.logger.log(f'[INFO] Switched to interface: {iface}')
+        self.logger.log(f"[INFO] Switched to interface: {iface}")
 
     def log_main_menu_exit(self) -> None:
-        self.logger.log('[INFO] Exiting menu.')
+        self.logger.log("[INFO] Exiting menu.")
 
     def show_advanced_menu(self) -> str:
-        print('', file=self.stdout)
-        print('------ Advanced systemd / DNS menu ------', file=self.stdout)
-        print('1) Show systemd-resolved & resolv.conf status', file=self.stdout)
-        print('2) Enable & start systemd-resolved', file=self.stdout)
-        print('3) Disable & stop systemd-resolved', file=self.stdout)
-        print('4) Point /etc/resolv.conf → systemd stub', file=self.stdout)
-        print('5) Point /etc/resolv.conf → systemd full resolv.conf', file=self.stdout)
-        print('6) Write manual /etc/resolv.conf (1.1.1.1 / 8.8.8.8)', file=self.stdout)
-        print('7) Back to main menu', file=self.stdout)
-        print('-----------------------------------------', file=self.stdout)
-        return self._input('Select an option [1-7]: ').strip()
+        print("", file=self.stdout)
+        print("------ Advanced systemd / DNS menu ------", file=self.stdout)
+        print("1) Show systemd-resolved & resolv.conf status", file=self.stdout)
+        print("2) Enable & start systemd-resolved", file=self.stdout)
+        print("3) Disable & stop systemd-resolved", file=self.stdout)
+        print("4) Point /etc/resolv.conf → systemd stub", file=self.stdout)
+        print("5) Point /etc/resolv.conf → systemd full resolv.conf", file=self.stdout)
+        print("6) Write manual /etc/resolv.conf (1.1.1.1 / 8.8.8.8)", file=self.stdout)
+        print("7) Back to main menu", file=self.stdout)
+        print("-----------------------------------------", file=self.stdout)
+        return self._input("Select an option [1-7]: ").strip()
 
     def show_invalid_advanced_choice(self) -> None:
-        print('Invalid choice, please select 1-7.', file=self.stdout)
+        print("Invalid choice, please select 1-7.", file=self.stdout)
 
     def log_exit_advanced(self) -> None:
-        self.logger.log('[INFO] Leaving advanced systemd/DNS menu.')
+        self.logger.log("[INFO] Leaving advanced systemd/DNS menu.")
 
 
 class EthernetRepairMenu:

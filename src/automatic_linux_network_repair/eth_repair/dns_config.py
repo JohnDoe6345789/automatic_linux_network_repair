@@ -75,12 +75,7 @@ def set_resolv_conf_manual_public(dry_run: bool) -> None:
         [
             "bash",
             "-c",
-            (
-                "printf '%s\n' "
-                "'nameserver 1.1.1.1' "
-                "'nameserver 8.8.8.8' "
-                "> /etc/resolv.conf"
-            ),
+            ("printf '%s\n' 'nameserver 1.1.1.1' 'nameserver 8.8.8.8' > /etc/resolv.conf"),
         ],
         dry_run,
     )

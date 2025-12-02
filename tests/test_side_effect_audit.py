@@ -9,11 +9,7 @@ SRC_ROOT = PROJECT_ROOT / "src" / "automatic_linux_network_repair"
 
 
 def _files_with_pattern(pattern: str) -> set[Path]:
-    return {
-        path.relative_to(PROJECT_ROOT)
-        for path in SRC_ROOT.rglob("*.py")
-        if pattern in path.read_text()
-    }
+    return {path.relative_to(PROJECT_ROOT) for path in SRC_ROOT.rglob("*.py") if pattern in path.read_text()}
 
 
 def test_print_calls_limited_to_side_effect_modules() -> None:

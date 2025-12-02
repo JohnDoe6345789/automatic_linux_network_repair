@@ -66,9 +66,7 @@ class WirelessBackend:
 
     name = "wireless"
 
-    def __init__(
-        self, *, shell: ShellRunner = DEFAULT_SHELL, logger: LoggingManager | None = None
-    ) -> None:
+    def __init__(self, *, shell: ShellRunner = DEFAULT_SHELL, logger: LoggingManager | None = None) -> None:
         self.shell = shell
         self.logger = logger or LoggingManager("wifi")
 
@@ -239,9 +237,7 @@ class IwctlBackend(WirelessBackend):
         if scan_res.returncode != 0:
             self.logger.debug(f"iwctl scan failed: {scan_res.stderr.strip()}")
             return []
-        list_res = self.shell.run_cmd(
-            ["iwctl", "station", interface, "get-networks"], timeout=15
-        )
+        list_res = self.shell.run_cmd(["iwctl", "station", interface, "get-networks"], timeout=15)
         if list_res.returncode != 0:
             self.logger.debug(f"iwctl list failed: {list_res.stderr.strip()}")
             return []
@@ -421,13 +417,9 @@ class WirelessManager:
         if not shutil.which("nmcli"):
             return None
 
-        res = self.shell.run_cmd(
-            ["nmcli", "-t", "-f", "DEVICE,TYPE", "device", "status"], timeout=8
-        )
+        res = self.shell.run_cmd(["nmcli", "-t", "-f", "DEVICE,TYPE", "device", "status"], timeout=8)
         if res.returncode != 0:
-            self.logger.debug(
-                f"nmcli device status failed while detecting interface: {res.stderr.strip()}"
-            )
+            self.logger.debug(f"nmcli device status failed while detecting interface: {res.stderr.strip()}")
             return None
 
         for line in res.stdout.splitlines():
@@ -439,9 +431,7 @@ class WirelessManager:
     def _detect_with_ip_link(self) -> str | None:
         res = self.shell.run_cmd(["ip", "-o", "link", "show"], timeout=8)
         if res.returncode != 0:
-            self.logger.debug(
-                f"ip link show failed while detecting interface: {res.stderr.strip()}"
-            )
+            self.logger.debug(f"ip link show failed while detecting interface: {res.stderr.strip()}")
             return None
 
         for line in res.stdout.splitlines():
@@ -474,9 +464,7 @@ class WirelessManager:
             result = backend.connect(interface, ssid, password, security_enum)
             if result.success:
                 return result
-            self.logger.debug(
-                f"Backend {backend.name} failed to connect to {ssid!r}: {result.message}"
-            )
+            self.logger.debug(f"Backend {backend.name} failed to connect to {ssid!r}: {result.message}")
         return ConnectionResult("none", False, "No wireless backend could establish the connection")
 
     def _candidate_backends(self, preferred_backend: str | None) -> Iterable[WirelessBackend]:

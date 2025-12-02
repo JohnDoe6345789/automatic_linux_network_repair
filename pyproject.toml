@@ -49,6 +49,9 @@ automatic_linux_network_repair = "automatic_linux_network_repair.cli:app"
 [tool.ruff]
 line-length = 120
 
+[tool.ruff.format]
+line-ending = "lf"
+
 [tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
@@ -57,6 +60,10 @@ select = [
     "I",   # isort
     "B",   # flake8-bugbear
     "UP",  # pyupgrade
+    "EXE", # flake8-executable (shebangs and executable bits)
+]
+extend-select = [
+    "W292", # ensure newline at end of file
 ]
 
 [tool.uv]

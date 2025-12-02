@@ -14,8 +14,7 @@ def apply_action(desc: str, cmd: list[str], dry_run: bool) -> bool:
     res = DEFAULT_SHELL.run_cmd(cmd, timeout=20)
     if res.returncode != 0:
         DEFAULT_LOGGER.log(
-            f"[WARN] Action failed (rc={res.returncode}): {DEFAULT_SHELL.cmd_str(cmd)} "
-            f"stderr={res.stderr.strip()}",
+            f"[WARN] Action failed (rc={res.returncode}): {DEFAULT_SHELL.cmd_str(cmd)} stderr={res.stderr.strip()}",
         )
         return False
     return True

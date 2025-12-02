@@ -38,8 +38,7 @@ class EthernetRepairSideEffects:
 
     def warn_not_root(self) -> None:
         print(
-            "ERROR: This script must be run as root.\n"
-            "       Try: sudo python3 eth_repair_menu.py",
+            "ERROR: This script must be run as root.\n       Try: sudo python3 eth_repair_menu.py",
             file=self.stderr,
         )
         self.logger.log(
@@ -47,9 +46,7 @@ class EthernetRepairSideEffects:
         )
 
     def log_start(self, interface: str) -> None:
-        self.logger.log(
-            f"[INFO] Ethernet repair helper starting for interface: {interface}"
-        )
+        self.logger.log(f"[INFO] Ethernet repair helper starting for interface: {interface}")
 
     def log_dry_run(self) -> None:
         self.logger.log("[INFO] Dry-run mode enabled (no changes will be made).")

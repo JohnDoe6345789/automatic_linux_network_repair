@@ -86,9 +86,7 @@ class NetworkRepairCLI:
         for net in networks:
             security = ",".join(net.security) if net.security else "open"
             signal = f"{net.signal}" if net.signal is not None else "?"
-            typer.echo(
-                f"{net.ssid[:28]:<30} {security[:20]:<22} {signal:<6} {net.bssid or '-'}"
-            )
+            typer.echo(f"{net.ssid[:28]:<30} {security[:20]:<22} {signal:<6} {net.bssid or '-'}")
 
     def _wifi_connect(
         self,
@@ -179,11 +177,7 @@ class NetworkRepairCLI:
             detail = ""
             if rc != 0:
                 failures += 1
-                detail = (
-                    validation.result.stderr.strip()
-                    or validation.result.stdout.strip()
-                    or f"rc={rc}"
-                )
+                detail = validation.result.stderr.strip() or validation.result.stdout.strip() or f"rc={rc}"
 
             message = f"[{status}] {validation.path}"
             if detail:
@@ -206,9 +200,7 @@ class NetworkRepairCLI:
         if detected:
             return detected
 
-        typer.echo(
-            "Could not detect a wireless interface; please specify --interface.", err=True
-        )
+        typer.echo("Could not detect a wireless interface; please specify --interface.", err=True)
         raise typer.Exit(code=1)
 
 
