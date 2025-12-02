@@ -97,6 +97,10 @@ The container installs Python 3.11 along with PyInstaller requirements and sets
 `APPIMAGE_EXTRACT_AND_RUN=1` so the build works without FUSE. The generated
 AppImage is emitted to your local `dist/` directory via the bind mount.
 
+If the mounted `dist/` directory is read-only for the container user, set a
+custom output path with `DIST_DIR=/tmp/dist` (or another writable location) and
+copy the resulting AppImage back to your host afterwards.
+
 ## Notes
 
 - The AppImage uses the CLI entrypoint and runs in a terminal.
