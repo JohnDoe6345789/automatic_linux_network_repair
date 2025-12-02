@@ -13,6 +13,11 @@ Automatic Linux Network Repair
 
 * TODO
 
+## AppImage builds
+
+Use the helper script in `scripts/appimage` to package the CLI as an AppImage. See
+[`docs/appimage.md`](docs/appimage.md) for prerequisites and step-by-step usage.
+
 ## Preparing an offline wheelhouse
 
 Use `scripts/prepare_wheelhouse.py` to download project dependencies and copy the wheel files to a mounted USB flash drive. This is helpful when the target machine will not have internet access.
