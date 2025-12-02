@@ -38,4 +38,9 @@ RUN python3.11 -m venv /app/.venv \
 
 ENV PATH="/app/.venv/bin:${PATH}"
 
+# Run the AppImage build as root so writing to a bind-mounted dist/ directory works
+# even when the host user does not match the internal builder user. The virtual
+# environment remains available via PATH.
+USER root
+
 CMD ["bash", "scripts/appimage/build_appimage.sh"]
