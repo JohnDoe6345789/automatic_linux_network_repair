@@ -13,6 +13,6 @@ else
   exit 1
 fi
 
-chown -R builder:builder "${DIST_DIR}"
+sudo chown -R builder:builder "${DIST_DIR}"
 
-exec su -s /bin/bash builder -c "PATH=/app/.venv/bin:${PATH} bash scripts/appimage/build_appimage.sh"
+exec bash -lc "sudo -u builder PATH=/app/.venv/bin:${PATH} bash scripts/appimage/build_appimage.sh"

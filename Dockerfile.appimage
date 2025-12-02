@@ -15,7 +15,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bash \
         python3.11 python3.11-venv python3.11-dev \
-        build-essential patchelf curl ca-certificates \
+        build-essential patchelf curl ca-certificates sudo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --shell /bin/bash builder \
@@ -33,16 +33,14 @@ RUN chmod +x scripts/appimage/entrypoint.sh
 
 USER builder
 
+RUN echo "builder ALL=(root) NOPASSWD:/bin/mkdir,/bin/chown" > /etc/sudoers.d/builder \
+    && chmod 0440 /etc/sudoers.d/builder
+
 RUN python3.11 -m venv /app/.venv \
     && . /app/.venv/bin/activate \
     && python -m pip install --upgrade pip \
     && python -m pip install -r requirements.txt
 
 ENV PATH="/app/.venv/bin:${PATH}"
-
-# Switch to root for the entrypoint so we can repair permissions on a bind-mounted
-# dist/ directory, then drop privileges back to the non-root builder user before
-# running the build script.
-USER root
 
 CMD ["bash", "scripts/appimage/entrypoint.sh"]
