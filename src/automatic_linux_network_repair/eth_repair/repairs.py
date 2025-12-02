@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 
 from automatic_linux_network_repair.eth_repair.actions import apply_action
+from automatic_linux_network_repair.eth_repair.diagnostics import fuzzy_diagnose
 from automatic_linux_network_repair.eth_repair.dns_config import (
     backup_resolv_conf,
     detect_resolv_conf_mode,
@@ -368,6 +369,8 @@ def repair_dns_interactive(dry_run: bool, side_effects: DnsRepairSideEffects | N
 class EthernetRepairCoordinator:
     """Coordinate repair strategies for a given interface and mode."""
 
+    ACTIONABLE_SUSPICION_THRESHOLD = 0.5
+
     def __init__(self, iface: str, dry_run: bool, allow_resolv_conf_edit: bool):
         self.iface = iface
         self.dry_run = dry_run
@@ -377,13 +380,43 @@ class EthernetRepairCoordinator:
         """Apply the most appropriate fix for a diagnosis."""
         DEFAULT_LOGGER.log("[INFO] Performing auto-repair...")
 
-        ordered = diagnosis.sorted_scores()
-        DEFAULT_LOGGER.log("Suspicion scores:")
-        for suspicion, score in ordered:
-            label = SUSPICION_LABELS[suspicion]
-            DEFAULT_LOGGER.log(f"  {label}: {score:.2f}")
+        iteration = 1
+        attempted: set[Suspicion] = set()
+        current_diagnosis = diagnosis
 
-        suspicion = diagnosis.top_suspicion
+        while True:
+            ordered = current_diagnosis.sorted_scores()
+            DEFAULT_LOGGER.log(f"[INFO] Repair iteration {iteration}: suspicion scores:")
+            for suspicion, score in ordered:
+                label = SUSPICION_LABELS[suspicion]
+                DEFAULT_LOGGER.log(f"  {label}: {score:.2f}")
+
+            actionable = [
+                (suspicion, score) for suspicion, score in ordered if score >= self.ACTIONABLE_SUSPICION_THRESHOLD
+            ]
+            next_suspicion = next((suspicion for suspicion, _ in actionable if suspicion not in attempted), None)
+
+            if next_suspicion is None:
+                if not actionable:
+                    DEFAULT_LOGGER.log(
+                        "[INFO] No suspicion scores exceed the repair threshold; stopping auto-repair.",
+                    )
+                else:
+                    DEFAULT_LOGGER.log(
+                        "[INFO] No further repair actions remain for detected issues; stopping auto-repair.",
+                    )
+                break
+
+            self._apply_repair(next_suspicion)
+            attempted.add(next_suspicion)
+
+            iteration += 1
+            DEFAULT_LOGGER.log("[INFO] Re-running diagnosis after attempted repair...")
+            current_diagnosis = fuzzy_diagnose(self.iface)
+
+        DEFAULT_LOGGER.log("[INFO] Auto-repair complete.")
+
+    def _apply_repair(self, suspicion: Suspicion) -> None:
         if suspicion == Suspicion.INTERFACE_MISSING:
             repair_interface_missing(self.iface)
         elif suspicion == Suspicion.LINK_DOWN:
@@ -399,8 +432,6 @@ class EthernetRepairCoordinator:
             )
         elif suspicion == Suspicion.DNS_BROKEN:
             self._repair_dns()
-
-        DEFAULT_LOGGER.log("[INFO] Auto-repair complete.")
 
     def _repair_dns(self) -> None:
         if self.allow_resolv_conf_edit:
