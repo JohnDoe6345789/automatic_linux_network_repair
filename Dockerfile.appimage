@@ -15,7 +15,7 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         bash \
         python3.11 python3.11-venv python3.11-dev \
-        build-essential patchelf curl ca-certificates \
+        build-essential patchelf curl ca-certificates sudo \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* \
     && useradd --create-home --shell /bin/bash builder \
@@ -29,7 +29,12 @@ COPY scripts ./scripts
 COPY src ./src
 COPY docs ./docs
 
+RUN chmod +x scripts/appimage/entrypoint.sh
+
 USER builder
+
+RUN echo "builder ALL=(root) NOPASSWD:/bin/mkdir,/bin/chown" > /etc/sudoers.d/builder \
+    && chmod 0440 /etc/sudoers.d/builder
 
 RUN python3.11 -m venv /app/.venv \
     && . /app/.venv/bin/activate \
@@ -38,4 +43,4 @@ RUN python3.11 -m venv /app/.venv \
 
 ENV PATH="/app/.venv/bin:${PATH}"
 
-CMD ["bash", "scripts/appimage/build_appimage.sh"]
+CMD ["bash", "scripts/appimage/entrypoint.sh"]
