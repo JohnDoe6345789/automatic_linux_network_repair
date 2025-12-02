@@ -24,10 +24,10 @@ RUN apt-get update \
 
 WORKDIR /app
 
-COPY --chown=builder:builder requirements.txt pyproject.toml poetry.lock README.md ./
-COPY --chown=builder:builder scripts ./scripts
-COPY --chown=builder:builder src ./src
-COPY --chown=builder:builder docs ./docs
+COPY requirements.txt pyproject.toml poetry.lock README.md ./
+COPY scripts ./scripts
+COPY src ./src
+COPY docs ./docs
 
 USER builder
 
