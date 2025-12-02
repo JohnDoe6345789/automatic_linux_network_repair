@@ -7,6 +7,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$(cd -- "${SCRIPT_DIR}/../.." && pwd)
 APP_NAME="automatic-linux-network-repair"
 APPDIR="${PROJECT_ROOT}/dist/AppDir"
+APPIMAGE_OUTPUT="${PROJECT_ROOT}/dist/${APP_NAME}-$(uname -m).AppImage"
 PYINSTALLER_ENTRYPOINT="${PROJECT_ROOT}/src/automatic_linux_network_repair/__main__.py"
 APPIMAGETOOL="${SCRIPT_DIR}/appimagetool"
 APPIMAGETOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
@@ -55,14 +56,15 @@ prepare_appdir() {
 package_appimage() {
     echo "Packaging AppImage..."
     fetch_appimagetool
-    APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGETOOL" "$APPDIR"
+    rm -f "$APPIMAGE_OUTPUT"
+    APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGETOOL" "$APPDIR" "$APPIMAGE_OUTPUT"
 }
 
 main() {
     build_binary
     prepare_appdir
     package_appimage
-    echo "AppImage created in dist/$(basename "$APP_NAME")*.AppImage"
+    echo "AppImage created at ${APPIMAGE_OUTPUT}"
 }
 
 main "$@"
