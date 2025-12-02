@@ -28,6 +28,7 @@ dev = [
     "mypy",  # static typing
     "pyinstaller",  # packaging
     "pytest",  # testing
+    "PyYAML",  # YAML parsing
     "ruff",  # linting
     "ty",  # type checking
 ]
@@ -88,6 +89,7 @@ black = "*"
 mypy = "*"
 flake8 = "*"
 pyinstaller = "*"
+PyYAML = "*"
 
 [tool.poetry.scripts]
 automatic_linux_network_repair = "automatic_linux_network_repair.cli:app"

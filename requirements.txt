@@ -8,4 +8,5 @@ mypy
 pyinstaller
 pytest
 ruff
+PyYAML
 ty
