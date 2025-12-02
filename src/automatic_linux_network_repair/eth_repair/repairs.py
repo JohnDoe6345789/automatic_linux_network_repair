@@ -392,13 +392,9 @@ class EthernetRepairCoordinator:
                 DEFAULT_LOGGER.log(f"  {label}: {score:.2f}")
 
             actionable = [
-                (suspicion, score)
-                for suspicion, score in ordered
-                if score >= self.ACTIONABLE_SUSPICION_THRESHOLD
+                (suspicion, score) for suspicion, score in ordered if score >= self.ACTIONABLE_SUSPICION_THRESHOLD
             ]
-            next_suspicion = next(
-                (suspicion for suspicion, _ in actionable if suspicion not in attempted), None
-            )
+            next_suspicion = next((suspicion for suspicion, _ in actionable if suspicion not in attempted), None)
 
             if next_suspicion is None:
                 if not actionable:
