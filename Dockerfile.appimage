@@ -17,10 +17,19 @@ RUN apt-get update \
         python3.11 python3.11-venv python3.11-dev \
         build-essential patchelf curl ca-certificates \
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --shell /bin/bash builder \
+    && mkdir -p /app \
+    && chown builder:builder /app
 
 WORKDIR /app
-COPY . /app
+
+COPY --chown=builder:builder requirements.txt pyproject.toml poetry.lock README.md ./
+COPY --chown=builder:builder scripts ./scripts
+COPY --chown=builder:builder src ./src
+COPY --chown=builder:builder docs ./docs
+
+USER builder
 
 RUN python3.11 -m venv /app/.venv \
     && . /app/.venv/bin/activate \

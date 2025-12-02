@@ -1,0 +1,19 @@
+# Exclude development and VCS metadata from the build context
+.git
+.gitignore
+.dockerignore
+.vscode
+.idea
+*.pyc
+*.pyo
+__pycache__
+*.swp
+.env
+.envrc
+.venv
+venv
+build
+.dist
+/dist
+/tmp
+*.log
