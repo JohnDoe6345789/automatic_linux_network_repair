@@ -23,6 +23,10 @@ Automatic Linux Network Repair is a batteries-included command-line assistant fo
 ```bash
 pip install automatic_linux_network_repair
 
+or
+
+pip install .
+
 # Common entrypoint (requires root for most operations)
 sudo automatic_linux_network_repair --help
 ```
