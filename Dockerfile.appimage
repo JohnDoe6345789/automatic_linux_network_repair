@@ -29,9 +29,8 @@ COPY scripts ./scripts
 COPY src ./src
 COPY docs ./docs
 
-RUN chmod +x scripts/appimage/entrypoint.sh
-
-RUN echo "builder ALL=(root) NOPASSWD:/bin/mkdir,/bin/chown" > /etc/sudoers.d/builder \
+RUN chmod +x scripts/appimage/entrypoint.sh \
+    && echo "builder ALL=(root) NOPASSWD:/bin/mkdir,/bin/chown" > /etc/sudoers.d/builder \
     && chmod 0440 /etc/sudoers.d/builder
 
 USER builder
