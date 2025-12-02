@@ -9,6 +9,8 @@ standard AppDir layout. Use the helper script to automate the process.
 - `pyinstaller` version 6.3 or newer (Python 3.12 compatible) available in your active
   environment. It is already pinned in `requirements.txt`.
 - `curl` available for fetching `appimagetool` if it is not already present.
+- The `file` utility available on your system so `appimagetool` can inspect the
+  assembled AppDir.
 
 ## Steps
 
@@ -45,7 +47,7 @@ build the AppImage end-to-end:
 
 ```bash
 sudo apt update
-sudo apt install -y python3.11 python3.11-venv python3.11-dev build-essential patchelf curl
+sudo apt install -y python3.11 python3.11-venv python3.11-dev build-essential patchelf curl file
 
 python3.11 -m venv .venv
 source .venv/bin/activate

@@ -30,7 +30,7 @@ ensure_dependency() {
     local name=$1
     if ! command -v "$name" >/dev/null 2>&1; then
         echo "Missing dependency: $name" >&2
-        echo "Install it in your active virtual environment before retrying." >&2
+        echo "Install it in your system or active virtual environment before retrying." >&2
         exit 1
     fi
 }
@@ -79,6 +79,8 @@ package_appimage() {
 }
 
 main() {
+    ensure_dependency curl
+    ensure_dependency file
     build_binary
     prepare_appdir
     package_appimage
