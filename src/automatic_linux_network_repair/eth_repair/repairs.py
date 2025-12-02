@@ -13,8 +13,8 @@ from automatic_linux_network_repair.eth_repair.dns_config import (
 )
 from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.probes import (
-    detect_network_managers,
     detect_active_vpn_services,
+    detect_network_managers,
     dns_resolves,
     interface_has_ipv4,
     tailscale_status,

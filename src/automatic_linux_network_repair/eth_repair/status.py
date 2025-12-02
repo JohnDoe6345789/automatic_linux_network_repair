@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.probes import (
+    detect_active_vpn_services,
     detect_network_managers,
     dns_resolves,
-    detect_active_vpn_services,
     has_default_route,
     interface_exists,
     interface_ip_addrs,
