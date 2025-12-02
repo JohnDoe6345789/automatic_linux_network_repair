@@ -14,7 +14,6 @@ from automatic_linux_network_repair.wifi import (
 )
 from tests.helpers import RecordingLogger
 
-
 # Dummy credentials used only for unit-test command construction; they are not
 # real secrets or production values.
 TEST_WEP_KEY = "example-wep-key"
