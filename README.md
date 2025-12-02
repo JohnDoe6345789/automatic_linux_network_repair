@@ -13,6 +13,18 @@ Automatic Linux Network Repair
 
 * TODO
 
+## Preparing an offline wheelhouse
+
+Use `scripts/prepare_wheelhouse.py` to download project dependencies and copy the wheel files to a mounted USB flash drive. This is helpful when the target machine will not have internet access.
+
+Example usage:
+
+```
+python scripts/prepare_wheelhouse.py --usb-mount /media/usb
+```
+
+The script downloads the dependencies listed in `requirements.txt`, builds a wheel for the project itself, and copies the resulting `wheelhouse/` directory onto the USB drive so it can be installed offline.
+
 ## Credits
 
 This package was created with [Cookiecutter](https://github.com/audreyfeldroy/cookiecutter) and the [audreyfeldroy/cookiecutter-pypackage](https://github.com/audreyfeldroy/cookiecutter-pypackage) project template.
