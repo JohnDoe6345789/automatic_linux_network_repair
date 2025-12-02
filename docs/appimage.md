@@ -5,7 +5,7 @@ standard AppDir layout. Use the helper script to automate the process.
 
 ## Prerequisites
 
-- Python 3.10+ with the project dependencies installed.
+- Python 3.10–3.14 with the project dependencies installed.
 - `pyinstaller` version 6.3 or newer (Python 3.12 compatible) available in your active
   environment. It is already pinned in `requirements.txt`.
 - `curl` available for fetching `appimagetool` if it is not already present.
