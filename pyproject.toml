@@ -1,6 +1,6 @@
 [project]
 name = "automatic_linux_network_repair"
-version = "0.3.2"
+version = "0.3.10"
 description = "Automatic Linux Network Repair"
 readme = "README.md"
 authors = [
@@ -75,11 +75,15 @@ package = true
 
 [tool.poetry]
 name = "automatic_linux_network_repair"
-version = "0.3.2"
+version = "0.3.10"
 description = "Automatic Linux Network Repair"
 readme = "README.md"
 license = "MIT"
 authors = ["Richard Ward <richard.ward637@outlook.com>"]
+packages = [{include = "automatic_linux_network_repair", from = "src"}]
+include = [
+  { path = "src/automatic_linux_network_repair/systemd_schemas/systemd_schema_sample.json", format = ["sdist", "wheel"] },
+]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.15"

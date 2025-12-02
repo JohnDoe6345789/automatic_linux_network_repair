@@ -15,6 +15,8 @@ Automatic Linux Network Repair is a batteries-included command-line assistant fo
 - **Non-interactive repair** – Use `--auto` to run fuzzy diagnostics and attempt common repairs automatically (ideal for SSH sessions or remote recovery).
 - **Wi‑Fi management** – Scan for nearby networks and connect using the best available backend (`nmcli`, `iwctl`, `wpa_cli`, or `iwlist`), with automatic interface detection when possible.
 - **Systemd validation** – Verify unit files and lint `/etc/systemd/resolved.conf` using `systemd-analyze verify`, with concise pass/fail reporting.
+- **Systemd configuration panel** – Render `systemd-analyze cat-config` dumps into a single readable panel highlighting active settings.
+- **Systemd configuration editor** – Walk discovered systemd files, pick the setting to change via menus, and emit a ready-to-use drop-in.
 - **Dry-run and logging** – Preview actions without making changes and write verbose logs to `/tmp/eth_repair.log` for later analysis.
 - **Distribution helpers** – Build an AppImage for portable distribution or create an offline wheelhouse for air‑gapped installs.
 
@@ -59,6 +61,31 @@ sudo automatic_linux_network_repair validate-systemd
 
 # Point at an alternative systemd tree (useful for chroots or mounts)
 sudo automatic_linux_network_repair validate-systemd --path /mnt/target/etc/systemd
+```
+
+### Render a systemd configuration dump
+
+```bash
+# Automatically walk /etc/systemd, run systemd-analyze cat-config, and render it
+sudo automatic_linux_network_repair systemd-panel --path /etc/systemd
+
+# Or render a previously captured dump file (useful for offline analysis)
+automatic_linux_network_repair systemd-panel --dump-file /tmp/systemd_dump.txt
+
+# Optionally save a JSON schema of active settings while rendering
+automatic_linux_network_repair systemd-panel --dump-file /tmp/systemd_dump.txt --schema-json /tmp/systemd_schema.json
+
+# A packaged sample schema ships at
+# automatic_linux_network_repair/systemd_schemas/systemd_schema_sample.json
+# and can be loaded via automatic_linux_network_repair.systemd_schemas.load_sample_schema().
+# It includes both active values and commented defaults and can be rendered back
+# to a cat-config-style dump with systemd_panel.systemd_dump_from_schema().
+
+# Launch an interactive editor, choose a file + option, and write a drop-in
+sudo automatic_linux_network_repair systemd-edit
+
+# Use a pre-generated dump and override where the drop-in is written
+automatic_linux_network_repair systemd-edit --dump-file /tmp/systemd_dump.txt --dropin-dir /tmp/dropins
 ```
 
 ## Packaging and offline installs

@@ -1,7 +1,11 @@
 """Console entrypoints for the network repair toolkit."""
 
-import typer
+import json
 
+import typer
+from rich.console import Console
+
+from automatic_linux_network_repair import systemd_panel
 from automatic_linux_network_repair.eth_repair.cli import DEFAULT_RUNNER
 from automatic_linux_network_repair.systemd_validation import validate_systemd_tree
 from automatic_linux_network_repair.wifi import SecurityType, WirelessManager
@@ -19,6 +23,8 @@ class NetworkRepairCLI:
         self._wifi_app.command("scan")(self._wifi_scan)
         self._wifi_app.command("connect")(self._wifi_connect)
         self.app.command("validate-systemd")(self._validate_systemd)
+        self.app.command("systemd-panel")(self._systemd_panel)
+        self.app.command("systemd-edit")(self._systemd_edit)
         self.wifi_manager = WirelessManager()
 
     def _main(
@@ -140,6 +146,106 @@ class NetworkRepairCLI:
     def run(self) -> None:
         """Invoke the Typer application."""
         self.app()
+
+    def _systemd_panel(
+        self,
+        dump_file: str | None = typer.Option(
+            None,
+            "--dump-file",
+            "-f",
+            help="Optional path to a pre-generated systemd-analyze cat-config dump.",
+        ),
+        path: str = typer.Option(
+            "/etc/systemd",
+            "--path",
+            "-p",
+            help="Directory to walk and feed into systemd-analyze cat-config.",
+        ),
+        schema_json: str | None = typer.Option(
+            None,
+            "--schema-json",
+            "-s",
+            help="Optional path to write a JSON schema of active settings.",
+        ),
+    ) -> None:
+        """Render a rich panel summarizing a systemd configuration dump."""
+
+        if dump_file:
+            try:
+                with open(dump_file, encoding="utf-8") as handle:
+                    dump_text = handle.read()
+            except OSError as exc:
+                typer.echo(f"Failed to read {dump_file}: {exc}", err=True)
+                raise typer.Exit(code=1) from exc
+        else:
+            result = systemd_panel.generate_systemd_dump(base_dir=path)
+            if result.returncode != 0:
+                detail = result.stderr.strip() or result.stdout.strip() or f"rc={result.returncode}"
+                typer.echo(f"Failed to generate systemd dump: {detail}", err=True)
+                raise typer.Exit(code=1)
+
+            dump_text = result.stdout
+
+        if schema_json:
+            schema = systemd_panel.systemd_schema_from_dump(dump_text)
+            try:
+                with open(schema_json, "w", encoding="utf-8") as handle:
+                    json.dump(schema, handle, indent=2, sort_keys=True)
+            except OSError as exc:
+                typer.echo(f"Failed to write schema to {schema_json}: {exc}", err=True)
+                raise typer.Exit(code=1) from exc
+
+        console = Console(force_terminal=False)
+        systemd_panel.print_systemd_panel(dump_text, console=console)
+
+    def _systemd_edit(
+        self,
+        dump_file: str | None = typer.Option(
+            None,
+            "--dump-file",
+            "-f",
+            help="Optional path to a pre-generated systemd-analyze cat-config dump.",
+        ),
+        path: str = typer.Option(
+            "/etc/systemd",
+            "--path",
+            "-p",
+            help="Directory to walk and feed into systemd-analyze cat-config.",
+        ),
+        dropin_dir: str | None = typer.Option(
+            None,
+            "--dropin-dir",
+            "-d",
+            help="Optional override for where to write the generated drop-in file.",
+        ),
+    ) -> None:
+        """Launch an interactive editor to tweak active systemd settings."""
+
+        if dump_file:
+            try:
+                with open(dump_file, encoding="utf-8") as handle:
+                    dump_text = handle.read()
+            except OSError as exc:
+                typer.echo(f"Failed to read {dump_file}: {exc}", err=True)
+                raise typer.Exit(code=1) from exc
+        else:
+            result = systemd_panel.generate_systemd_dump(base_dir=path)
+            if result.returncode != 0:
+                detail = result.stderr.strip() or result.stdout.strip() or f"rc={result.returncode}"
+                typer.echo(f"Failed to generate systemd dump: {detail}", err=True)
+                raise typer.Exit(code=1)
+
+            dump_text = result.stdout
+
+        dropin_path = systemd_panel.interactive_edit_systemd_dump(
+            dump_text,
+            dropin_dir=dropin_dir,
+        )
+
+        if dropin_path is None:
+            raise typer.Exit(code=1)
+
+        typer.echo(f"Drop-in written to: {dropin_path}")
 
     def _validate_systemd(
         self,

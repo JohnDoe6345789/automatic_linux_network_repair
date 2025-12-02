@@ -62,3 +62,33 @@ The command:
 - Runs `systemd-analyze verify` against each unit-like file under the specified tree and summarizes pass/fail counts.
 
 Non-zero exit codes indicate missing tools or validation failures so the command can be wired into CI or provisioning scripts.
+
+## Render a systemd configuration dump
+
+Use `systemd-panel` to walk a systemd directory, run `systemd-analyze cat-config` on every file, and render a readable summary table:
+
+```bash
+sudo automatic_linux_network_repair systemd-panel --path /etc/systemd
+
+# Or render a pre-generated dump file
+automatic_linux_network_repair systemd-panel --dump-file /tmp/systemd_dump.txt
+
+# Optionally emit a JSON schema alongside the rendered panel
+automatic_linux_network_repair systemd-panel --dump-file /tmp/systemd_dump.txt --schema-json /tmp/systemd_schema.json
+
+# A packaged sample schema ships at
+# automatic_linux_network_repair/systemd_schemas/systemd_schema_sample.json
+# and can be loaded via automatic_linux_network_repair.systemd_schemas.load_sample_schema().
+# The file includes active values plus commented defaults and can be rendered
+# back into a cat-config-style dump with systemd_panel.systemd_dump_from_schema().
+```
+
+Launch an interactive editor to choose a file and setting to change. By default it walks `/etc/systemd` and writes a drop-in
+next to the selected file:
+
+```
+sudo automatic_linux_network_repair systemd-edit
+
+# Use a captured dump and override where the drop-in is written
+automatic_linux_network_repair systemd-edit --dump-file /tmp/systemd_dump.txt --dropin-dir /tmp/dropins
+```

@@ -1,0 +1,395 @@
+{
+  "/etc/systemd/journald.conf": {
+    "active_settings": {
+      "Journal": {}
+    },
+    "commented_settings": {
+      "Journal": {
+        "Audit": "no",
+        "Compress": "yes",
+        "ForwardToConsole": "no",
+        "ForwardToKMsg": "no",
+        "ForwardToSyslog": "yes",
+        "ForwardToWall": "yes",
+        "LineMax": "48K",
+        "MaxFileSec": "1month",
+        "MaxLevelConsole": "info",
+        "MaxLevelKMsg": "notice",
+        "MaxLevelStore": "debug",
+        "MaxLevelSyslog": "debug",
+        "MaxLevelWall": "emerg",
+        "MaxRetentionSec": "",
+        "RateLimitBurst": "10000",
+        "RateLimitIntervalSec": "30s",
+        "ReadKMsg": "yes",
+        "RuntimeKeepFree": "",
+        "RuntimeMaxFileSize": "",
+        "RuntimeMaxFiles": "100",
+        "RuntimeMaxUse": "",
+        "Seal": "yes",
+        "SplitMode": "uid",
+        "Storage": "auto",
+        "SyncIntervalSec": "5m",
+        "SystemKeepFree": "",
+        "SystemMaxFileSize": "",
+        "SystemMaxFiles": "100",
+        "SystemMaxUse": "",
+        "TTYPath": "/dev/console"
+      }
+    }
+  },
+  "/etc/systemd/logind.conf": {
+    "active_settings": {
+      "Login": {
+        "HandlePowerKey": "ignore"
+      }
+    },
+    "commented_settings": {
+      "Login": {
+        "HandleHibernateKey": "hibernate",
+        "HandleHibernateKeyLongPress": "ignore",
+        "HandleLidSwitch": "suspend",
+        "HandleLidSwitchDocked": "ignore",
+        "HandleLidSwitchExternalPower": "suspend",
+        "HandlePowerKeyLongPress": "ignore",
+        "HandleRebootKey": "reboot",
+        "HandleRebootKeyLongPress": "poweroff",
+        "HandleSuspendKey": "suspend",
+        "HandleSuspendKeyLongPress": "hibernate",
+        "HibernateKeyIgnoreInhibited": "no",
+        "HoldoffTimeoutSec": "30s",
+        "IdleAction": "ignore",
+        "IdleActionSec": "30min",
+        "InhibitDelayMaxSec": "5",
+        "InhibitorsMax": "8192",
+        "KillExcludeUsers": "root",
+        "KillOnlyUsers": "",
+        "KillUserProcesses": "no",
+        "LidSwitchIgnoreInhibited": "yes",
+        "NAutoVTs": "6",
+        "PowerKeyIgnoreInhibited": "no",
+        "RebootKeyIgnoreInhibited": "no",
+        "RemoveIPC": "yes",
+        "ReserveVT": "6",
+        "RuntimeDirectoryInodesMax": "",
+        "RuntimeDirectorySize": "10%",
+        "SessionsMax": "8192",
+        "StopIdleSessionSec": "infinity",
+        "SuspendKeyIgnoreInhibited": "no",
+        "UserStopDelaySec": "10"
+      }
+    }
+  },
+  "/etc/systemd/networkd.conf": {
+    "active_settings": {
+      "DHCPv4": {},
+      "DHCPv6": {},
+      "Network": {}
+    },
+    "commented_settings": {
+      "DHCPv4": {
+        "DUIDRawData": "",
+        "DUIDType": "vendor"
+      },
+      "DHCPv6": {
+        "DUIDRawData": "",
+        "DUIDType": "vendor"
+      },
+      "Network": {
+        "ManageForeignRoutes": "yes",
+        "ManageForeignRoutingPolicyRules": "yes",
+        "RouteTable": "",
+        "SpeedMeter": "no",
+        "SpeedMeterIntervalSec": "10sec"
+      }
+    }
+  },
+  "/etc/systemd/pstore.conf": {
+    "active_settings": {
+      "PStore": {}
+    },
+    "commented_settings": {
+      "PStore": {
+        "Storage": "external",
+        "Unlink": "yes"
+      }
+    }
+  },
+  "/etc/systemd/resolved.conf": {
+    "active_settings": {
+      "Resolve": {
+        "DNS": "1.1.1.1 8.8.8.8"
+      }
+    },
+    "commented_settings": {
+      "Resolve": {
+        "Cache": "yes",
+        "CacheFromLocalhost": "no",
+        "DNSOverTLS": "no",
+        "DNSSEC": "no",
+        "DNSStubListener": "yes",
+        "DNSStubListenerExtra": "",
+        "Domains": "",
+        "FallbackDNS": "",
+        "LLMNR": "yes",
+        "MulticastDNS": "yes",
+        "ReadEtcHosts": "yes",
+        "ResolveUnicastSingleLabel": "no"
+      }
+    }
+  },
+  "/etc/systemd/resolved.conf.d/99-openmediavault-mdns.conf": {
+    "active_settings": {
+      "Resolve": {
+        "MulticastDNS": "no"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/sleep.conf": {
+    "active_settings": {
+      "Sleep": {}
+    },
+    "commented_settings": {
+      "Sleep": {
+        "AllowHibernation": "yes",
+        "AllowHybridSleep": "yes",
+        "AllowSuspend": "yes",
+        "AllowSuspendThenHibernate": "yes",
+        "HibernateDelaySec": "",
+        "HibernateMode": "platform shutdown",
+        "HibernateState": "disk",
+        "HybridSleepMode": "suspend platform shutdown",
+        "HybridSleepState": "disk",
+        "SuspendEstimationSec": "60min",
+        "SuspendMode": "",
+        "SuspendState": "mem standby freeze"
+      }
+    }
+  },
+  "/etc/systemd/system.conf": {
+    "active_settings": {
+      "Manager": {}
+    },
+    "commented_settings": {
+      "Manager": {
+        "CPUAffinity": "",
+        "CapabilityBoundingSet": "",
+        "CrashChangeVT": "no",
+        "CrashReboot": "no",
+        "CrashShell": "no",
+        "CtrlAltDelBurstAction": "reboot-force",
+        "DefaultCPUAccounting": "yes",
+        "DefaultDeviceTimeoutSec": "90s",
+        "DefaultEnvironment": "",
+        "DefaultIOAccounting": "no",
+        "DefaultIPAccounting": "no",
+        "DefaultLimitAS": "",
+        "DefaultLimitCORE": "",
+        "DefaultLimitCPU": "",
+        "DefaultLimitDATA": "",
+        "DefaultLimitFSIZE": "",
+        "DefaultLimitLOCKS": "",
+        "DefaultLimitMEMLOCK": "8M",
+        "DefaultLimitMSGQUEUE": "",
+        "DefaultLimitNICE": "",
+        "DefaultLimitNOFILE": "1024:524288",
+        "DefaultLimitNPROC": "",
+        "DefaultLimitRSS": "",
+        "DefaultLimitRTPRIO": "",
+        "DefaultLimitRTTIME": "",
+        "DefaultLimitSIGPENDING": "",
+        "DefaultLimitSTACK": "",
+        "DefaultMemoryAccounting": "yes",
+        "DefaultOOMPolicy": "stop",
+        "DefaultRestartSec": "100ms",
+        "DefaultSmackProcessLabel": "",
+        "DefaultStandardError": "inherit",
+        "DefaultStandardOutput": "journal",
+        "DefaultStartLimitBurst": "5",
+        "DefaultStartLimitIntervalSec": "10s",
+        "DefaultTasksAccounting": "yes",
+        "DefaultTasksMax": "15%",
+        "DefaultTimeoutAbortSec": "",
+        "DefaultTimeoutStartSec": "90s",
+        "DefaultTimeoutStopSec": "90s",
+        "DefaultTimerAccuracySec": "1min",
+        "DumpCore": "yes",
+        "KExecWatchdogSec": "off",
+        "LogColor": "yes",
+        "LogLevel": "info",
+        "LogLocation": "no",
+        "LogTarget": "journal-or-kmsg",
+        "LogTime": "no",
+        "NUMAMask": "",
+        "NUMAPolicy": "default",
+        "NoNewPrivileges": "no",
+        "RebootWatchdogSec": "10min",
+        "RuntimeWatchdogPreGovernor": "",
+        "RuntimeWatchdogPreSec": "off",
+        "RuntimeWatchdogSec": "off",
+        "ShowStatus": "yes",
+        "StatusUnitFormat": "combined",
+        "SystemCallArchitectures": "",
+        "TimerSlackNSec": "",
+        "WatchdogDevice": ""
+      }
+    }
+  },
+  "/etc/systemd/system.conf.d/openmediavault-watchdog.conf": {
+    "active_settings": {
+      "Manager": {
+        "RuntimeWatchdogSec": "5min"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/apt-daily-upgrade.service.d/openmediavault.conf": {
+    "active_settings": {
+      "Unit": {
+        "ConditionACPower": ""
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/apt-daily-upgrade.timer.d/openmediavault.conf": {
+    "active_settings": {
+      "Timer": {
+        "OnCalendar": "*-*-* 6,10,14,18,22:00",
+        "RandomizedDelaySec": "30m"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/apt-daily.service.d/openmediavault.conf": {
+    "active_settings": {
+      "Unit": {
+        "ConditionACPower": ""
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/apt-daily.timer.d/openmediavault.conf": {
+    "active_settings": {
+      "Timer": {
+        "OnCalendar": "*-*-* 6,10,14,18,22:00",
+        "RandomizedDelaySec": "4h"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/chrony.service.d/openmediavault.conf": {
+    "active_settings": {
+      "Service": {
+        "Restart": "on-failure",
+        "RestartSec": "5"
+      },
+      "Unit": {
+        "After": "network.target network-online.target",
+        "Wants": "network-online.target"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/collectd.service.d/openmediavault.conf": {
+    "active_settings": {
+      "Unit": {
+        "After": "rrdcached.service",
+        "Wants": "rrdcached.service"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/smartctl-hdparm.service": {
+    "active_settings": {
+      "Install": {
+        "WantedBy": "multi-user.target"
+      },
+      "Service": {
+        "ExecStart": "-run-parts /etc/smartmontools/hdparm.d/",
+        "Type": "oneshot"
+      },
+      "Unit": {
+        "Description": "Tune hard disk parameters"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/smartmontools.service.d/openmediavault.conf": {
+    "active_settings": {
+      "Service": {
+        "TimeoutSec": "300"
+      },
+      "Unit": {
+        "ConditionVirtualization": "!container"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/tmp.mount": {
+    "active_settings": {
+      "Mount": {
+        "Type": "tmpfs",
+        "What": "tmpfs",
+        "Where": "/tmp"
+      },
+      "Unit": {
+        "Before": "local-fs.target",
+        "Description": "Mount /tmp as tmpfs to reduce write access to the root device"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/system/wsdd-server.service.d/openmediavault.conf": {
+    "active_settings": {
+      "Unit": {
+        "BindsTo": "smbd.service"
+      }
+    },
+    "commented_settings": {}
+  },
+  "/etc/systemd/user.conf": {
+    "active_settings": {
+      "Manager": {}
+    },
+    "commented_settings": {
+      "Manager": {
+        "DefaultEnvironment": "",
+        "DefaultLimitAS": "",
+        "DefaultLimitCORE": "",
+        "DefaultLimitCPU": "",
+        "DefaultLimitDATA": "",
+        "DefaultLimitFSIZE": "",
+        "DefaultLimitLOCKS": "",
+        "DefaultLimitMEMLOCK": "",
+        "DefaultLimitMSGQUEUE": "",
+        "DefaultLimitNICE": "",
+        "DefaultLimitNOFILE": "",
+        "DefaultLimitNPROC": "",
+        "DefaultLimitRSS": "",
+        "DefaultLimitRTPRIO": "",
+        "DefaultLimitRTTIME": "",
+        "DefaultLimitSIGPENDING": "",
+        "DefaultLimitSTACK": "",
+        "DefaultRestartSec": "100ms",
+        "DefaultSmackProcessLabel": "",
+        "DefaultStandardError": "inherit",
+        "DefaultStandardOutput": "inherit",
+        "DefaultStartLimitBurst": "5",
+        "DefaultStartLimitIntervalSec": "10s",
+        "DefaultTimeoutAbortSec": "",
+        "DefaultTimeoutStartSec": "90s",
+        "DefaultTimeoutStopSec": "90s",
+        "DefaultTimerAccuracySec": "1min",
+        "LogColor": "yes",
+        "LogLevel": "info",
+        "LogLocation": "no",
+        "LogTarget": "auto",
+        "LogTime": "no",
+        "StatusUnitFormat": "combined",
+        "SystemCallArchitectures": "",
+        "TimerSlackNSec": ""
+      }
+    }
+  }
+}
