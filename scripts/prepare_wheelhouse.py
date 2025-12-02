@@ -7,8 +7,8 @@ import argparse
 import shutil
 import subprocess
 import sys
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, List
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -31,7 +31,7 @@ def _prepare_wheelhouse(requirements: Path, wheelhouse: Path) -> None:
         shutil.rmtree(wheelhouse)
     wheelhouse.mkdir(parents=True, exist_ok=True)
 
-    download_cmd: List[str] = [
+    download_cmd: list[str] = [
         sys.executable,
         "-m",
         "pip",
@@ -43,7 +43,7 @@ def _prepare_wheelhouse(requirements: Path, wheelhouse: Path) -> None:
     ]
     _run_command(download_cmd)
 
-    build_cmd: List[str] = [
+    build_cmd: list[str] = [
         sys.executable,
         "-m",
         "pip",
