@@ -91,6 +91,7 @@ sudo automatic_linux_network_repair systemd-edit
 
 # The editor shows a preview and asks for confirmation before writing to disk
 
-# Use a captured dump and override where the drop-in is written
+# Use a captured dump and override where the drop-in is written. The override
+# directory must not be world-writable or a symlink.
 automatic_linux_network_repair systemd-edit --dump-file /tmp/systemd_dump.txt --dropin-dir /tmp/dropins
 ```

@@ -5,6 +5,7 @@ from __future__ import annotations
 import configparser
 import os
 import shutil
+import stat
 from collections.abc import Callable, Mapping
 from typing import Any
 
@@ -246,16 +247,39 @@ def generate_systemd_dump(base_dir: str = "/etc/systemd", *, shell: ShellRunner 
     return shell.run_cmd(cmd, timeout=30)
 
 
+def _ensure_secure_directory(directory: str) -> str:
+    """Ensure ``directory`` exists, is not world-writable, and is not a symlink."""
+
+    resolved = os.path.abspath(directory)
+
+    if os.path.islink(resolved):
+        raise ValueError(f"Drop-in directory must not be a symlink: {resolved}")
+
+    if os.path.exists(resolved):
+        if not os.path.isdir(resolved):
+            raise ValueError(f"Drop-in directory is not a directory: {resolved}")
+
+        mode = os.stat(resolved).st_mode
+        if mode & stat.S_IWOTH:
+            raise ValueError(f"Refusing to use world-writable drop-in directory: {resolved}")
+    else:
+        os.makedirs(resolved, mode=0o700, exist_ok=True)
+
+    return resolved
+
+
 def _build_dropin_path(target: str, override_dir: str | None = None) -> str:
     """Return the path to a drop-in file for ``target``.
 
     If ``override_dir`` is provided, it is used directly; otherwise ``<target>.d``
     is used alongside the original file. The resulting path always ends with a
-    stable file name so repeated edits do not create multiple files.
+    stable file name so repeated edits do not create multiple files. The chosen
+    directory is validated to avoid unsafe, world-writable targets.
     """
 
     directory = override_dir or f"{target}.d"
-    return os.path.join(directory, "99-automatic-linux-network-repair.conf")
+    safe_directory = _ensure_secure_directory(directory)
+    return os.path.join(safe_directory, "99-automatic-linux-network-repair.conf")
 
 
 def interactive_edit_systemd_dump(
@@ -345,7 +369,11 @@ def interactive_edit_systemd_dump(
     key = keys[key_index]
     new_value = prompt_fn(f"Enter new value for {key} (current: {active_settings[section][key]}): ")
 
-    dropin_path = _build_dropin_path(target_path, override_dir=dropin_dir)
+    try:
+        dropin_path = _build_dropin_path(target_path, override_dir=dropin_dir)
+    except ValueError as exc:
+        emit(f"Refusing to write drop-in: {exc}")
+        return None
     content = f"[{section}]\n{key}={new_value}\n"
 
     emit("Preview drop-in content:")

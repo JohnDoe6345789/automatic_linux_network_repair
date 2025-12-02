@@ -2,6 +2,7 @@
 
 import json
 
+import pytest
 from rich.console import Console
 from typer.testing import CliRunner
 
@@ -191,10 +192,21 @@ def test_cli_command_generates_dump_when_no_file(monkeypatch, tmp_path):
     assert "HandlePowerKey=ignore" in result.output
 
 
-def test_build_dropin_path_uses_override_dir():
-    path = systemd_panel._build_dropin_path("/etc/systemd/logind.conf", override_dir="/tmp/out")
+def test_build_dropin_path_uses_override_dir(tmp_path):
+    override_dir = tmp_path / "out"
 
-    assert path == "/tmp/out/99-automatic-linux-network-repair.conf"
+    path = systemd_panel._build_dropin_path("/etc/systemd/logind.conf", override_dir=str(override_dir))
+
+    assert path == str(override_dir / "99-automatic-linux-network-repair.conf")
+
+
+def test_build_dropin_path_rejects_world_writable(tmp_path):
+    override_dir = tmp_path / "public"
+    override_dir.mkdir()
+    override_dir.chmod(0o777)
+
+    with pytest.raises(ValueError):
+        systemd_panel._build_dropin_path("/etc/systemd/logind.conf", override_dir=str(override_dir))
 
 
 def test_interactive_edit_systemd_dump_writes_dropin(tmp_path):
