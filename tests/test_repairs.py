@@ -87,3 +87,23 @@ def test_dns_menu_declines_manual_rewrite_on_non_tty(monkeypatch):
 
     assert any("Not running on a TTY" in msg for msg in effects.logger.messages)
     assert not any("User declined manual" in msg for msg in effects.logger.messages)
+
+
+def test_repair_no_internet_reports_active_vpn_services(monkeypatch):
+    """Active VPN services should be surfaced during generic repair attempts."""
+
+    logger = RecordingLogger()
+    monkeypatch.setattr(repairs, "DEFAULT_LOGGER", logger)
+    monkeypatch.setattr(repairs, "detect_network_managers", lambda: {})
+    monkeypatch.setattr(
+        repairs, "tailscale_status", lambda: {"installed": False, "active": False}
+    )
+    monkeypatch.setattr(
+        repairs, "detect_active_vpn_services", lambda: ["openvpn.service", "wg-quick@wg0.service"]
+    )
+
+    repairs.repair_no_internet(dry_run=True)
+
+    assert any("Active VPN services detected" in msg for msg in logger.messages)
+    assert any("openvpn.service" in msg for msg in logger.messages)
+    assert any("wg-quick@wg0.service" in msg for msg in logger.messages)

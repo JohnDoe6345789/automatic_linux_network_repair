@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.probes import (
+    detect_active_vpn_services,
     detect_network_managers,
     dns_resolves,
     has_default_route,
@@ -30,6 +31,7 @@ def show_status(iface: str) -> None:
     dns_ok = dns_resolves()
     managers = detect_network_managers()
     tailscale = tailscale_status()
+    active_vpn_services = detect_active_vpn_services()
 
     DEFAULT_LOGGER.log(f"Interface:           {iface}")
     DEFAULT_LOGGER.log(f"Exists:              {exists}")
@@ -44,6 +46,16 @@ def show_status(iface: str) -> None:
     DEFAULT_LOGGER.log("Network managers:")
     for name, active in managers.items():
         DEFAULT_LOGGER.log(f"  {name:17s}: {'active' if active else 'inactive'}")
+    DEFAULT_LOGGER.log("")
+    DEFAULT_LOGGER.log("VPN services (systemd, running):")
+    if active_vpn_services:
+        for unit in active_vpn_services:
+            DEFAULT_LOGGER.log(f"  {unit}")
+        DEFAULT_LOGGER.log(
+            "  Hint: suspend VPN tunnels if they block local/internet connectivity."
+        )
+    else:
+        DEFAULT_LOGGER.log("  None detected")
     DEFAULT_LOGGER.log("")
     DEFAULT_LOGGER.log("Tailscale:")
     DEFAULT_LOGGER.log(

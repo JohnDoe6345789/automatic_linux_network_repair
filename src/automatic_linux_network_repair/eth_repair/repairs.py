@@ -13,6 +13,7 @@ from automatic_linux_network_repair.eth_repair.dns_config import (
 )
 from automatic_linux_network_repair.eth_repair.logging_utils import DEFAULT_LOGGER
 from automatic_linux_network_repair.eth_repair.probes import (
+    detect_active_vpn_services,
     detect_network_managers,
     dns_resolves,
     interface_has_ipv4,
@@ -187,6 +188,7 @@ def repair_no_internet(dry_run: bool) -> None:
     DEFAULT_LOGGER.log("[INFO] Attempting general internet connectivity repair.")
     managers = detect_network_managers()
     tailscale = tailscale_status()
+    active_vpn_services = detect_active_vpn_services()
 
     if managers.get("NetworkManager", False):
         apply_action(
@@ -217,6 +219,14 @@ def repair_no_internet(dry_run: bool) -> None:
                 "[INFO] Tailscale installed but inactive; run `sudo tailscale up` "
                 "if VPN access is expected."
             )
+
+    if active_vpn_services:
+        DEFAULT_LOGGER.log(
+            "[INFO] Active VPN services detected; disconnect or stop them "
+            "if they might be blocking internet connectivity:"
+        )
+        for unit in active_vpn_services:
+            DEFAULT_LOGGER.log(f"  - {unit}")
 
     DEFAULT_LOGGER.log(
         "[INFO] No known network manager detected; perform manual investigation (ping, firewall, modem)."
