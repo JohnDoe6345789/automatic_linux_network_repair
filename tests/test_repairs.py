@@ -127,3 +127,62 @@ def test_repair_no_ipv4_prioritizes_networkmanager(monkeypatch):
 
     assert len(calls) >= len(expected_first_actions)
     assert calls[: len(expected_first_actions)] == expected_first_actions
+
+
+def test_perform_repairs_iterates_until_scores_drop(monkeypatch):
+    """Repairs should progress through multiple suspicions while re-running diagnosis."""
+
+    logger = RecordingLogger()
+    monkeypatch.setattr(repairs, "DEFAULT_LOGGER", logger)
+
+    diag1 = repairs.Diagnosis(
+        "eth0",
+        {
+            repairs.Suspicion.NO_IPV4: 0.9,
+            repairs.Suspicion.NO_ROUTE: 0.7,
+        },
+    )
+    diag2 = repairs.Diagnosis("eth0", {repairs.Suspicion.NO_ROUTE: 0.65})
+    diag3 = repairs.Diagnosis("eth0", {repairs.Suspicion.NO_ROUTE: 0.2})
+
+    diagnoses = iter([diag2, diag3])
+    monkeypatch.setattr(repairs, "fuzzy_diagnose", lambda iface: next(diagnoses))
+
+    applied: list[repairs.Suspicion] = []
+
+    def _fake_apply(self, suspicion):
+        applied.append(suspicion)
+
+    monkeypatch.setattr(repairs.EthernetRepairCoordinator, "_apply_repair", _fake_apply, raising=False)
+
+    coordinator = repairs.EthernetRepairCoordinator("eth0", dry_run=True, allow_resolv_conf_edit=False)
+    coordinator.perform_repairs(diag1)
+
+    assert applied == [repairs.Suspicion.NO_IPV4, repairs.Suspicion.NO_ROUTE]
+    assert any("Repair iteration 1" in msg for msg in logger.messages)
+    assert any("Re-running diagnosis after attempted repair" in msg for msg in logger.messages)
+
+
+def test_perform_repairs_stops_when_no_actions_remain(monkeypatch):
+    """Once all actionable suspicions are attempted, the loop should exit."""
+
+    logger = RecordingLogger()
+    monkeypatch.setattr(repairs, "DEFAULT_LOGGER", logger)
+
+    diag1 = repairs.Diagnosis("eth0", {repairs.Suspicion.NO_ROUTE: 0.8})
+    diag2 = repairs.Diagnosis("eth0", {repairs.Suspicion.NO_ROUTE: 0.75})
+
+    monkeypatch.setattr(repairs, "fuzzy_diagnose", lambda iface: diag2)
+
+    applied: list[repairs.Suspicion] = []
+
+    def _fake_apply(self, suspicion):
+        applied.append(suspicion)
+
+    monkeypatch.setattr(repairs.EthernetRepairCoordinator, "_apply_repair", _fake_apply, raising=False)
+
+    coordinator = repairs.EthernetRepairCoordinator("eth0", dry_run=True, allow_resolv_conf_edit=False)
+    coordinator.perform_repairs(diag1)
+
+    assert applied == [repairs.Suspicion.NO_ROUTE]
+    assert any("No further repair actions remain" in msg for msg in logger.messages)
