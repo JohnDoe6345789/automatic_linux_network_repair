@@ -5,7 +5,7 @@ coverage
 flake8
 ipdb
 mypy
-pyinstaller
+pyinstaller>=6.3,<7
 pytest
 ruff
 PyYAML

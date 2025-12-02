@@ -6,7 +6,8 @@ standard AppDir layout. Use the helper script to automate the process.
 ## Prerequisites
 
 - Python 3.10+ with the project dependencies installed.
-- `pyinstaller` available in your active environment (`pip install pyinstaller`).
+- `pyinstaller` version 6.3 or newer (Python 3.12 compatible) available in your active
+  environment. It is already pinned in `requirements.txt`.
 - `curl` available for fetching `appimagetool` if it is not already present.
 
 ## Steps
@@ -15,7 +16,6 @@ standard AppDir layout. Use the helper script to automate the process.
 
    ```bash
    pip install -r requirements.txt
-   pip install pyinstaller
    ```
 
 2. Run the build script from the repository root:
