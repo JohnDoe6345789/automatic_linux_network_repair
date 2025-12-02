@@ -10,19 +10,12 @@ from pathlib import Path
 def test_main_entrypoint_injects_project_root(monkeypatch):
     """The __main__ module should add the project root to sys.path when executed."""
 
-    script = (
-        Path(__file__).resolve().parents[1]
-        / "src"
-        / "automatic_linux_network_repair"
-        / "__main__.py"
-    )
+    script = Path(__file__).resolve().parents[1] / "src" / "automatic_linux_network_repair" / "__main__.py"
 
     # Simulate running the file directly with the package directory prioritized.
     # Keep the remaining default entries so Python's standard library stays available.
     cleaned_path = [str(script.parent)] + [
-        entry
-        for entry in sys.path
-        if entry not in {str(script.parent), str(script.parent.parent)}
+        entry for entry in sys.path if entry not in {str(script.parent), str(script.parent.parent)}
     ]
     monkeypatch.setattr(sys, "path", cleaned_path)
 

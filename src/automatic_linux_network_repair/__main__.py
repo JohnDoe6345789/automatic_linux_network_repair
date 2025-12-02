@@ -22,9 +22,21 @@ def _ensure_package_on_path() -> None:
         sys.path.insert(0, project_root_str)
 
 
-_ensure_package_on_path()
+def _load_app():
+    _ensure_package_on_path()
+    from automatic_linux_network_repair.cli import app as cli_app
 
-from automatic_linux_network_repair.cli import app
+    return cli_app
+
+
+app = _load_app()
+
+
+def main() -> None:
+    """Entrypoint for running the CLI application."""
+
+    app()
+
 
 if __name__ == "__main__":
-    app()
+    main()
