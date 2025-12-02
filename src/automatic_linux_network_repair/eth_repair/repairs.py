@@ -16,6 +16,7 @@ from automatic_linux_network_repair.eth_repair.probes import (
     detect_network_managers,
     dns_resolves,
     interface_has_ipv4,
+    tailscale_status,
 )
 from automatic_linux_network_repair.eth_repair.types import (
     SUSPICION_LABELS,
@@ -185,6 +186,7 @@ def repair_no_internet(dry_run: bool) -> None:
 
     DEFAULT_LOGGER.log("[INFO] Attempting general internet connectivity repair.")
     managers = detect_network_managers()
+    tailscale = tailscale_status()
 
     if managers.get("NetworkManager", False):
         apply_action(
@@ -203,6 +205,18 @@ def repair_no_internet(dry_run: bool) -> None:
             "Restart networking (ifupdown)", ["systemctl", "restart", "networking"], dry_run
         )
         return
+
+    if tailscale["installed"]:
+        if tailscale["active"]:
+            DEFAULT_LOGGER.log(
+                "[INFO] Tailscale detected; check `tailscale status` or restart "
+                "tailscaled if overlay connectivity should be available."
+            )
+        else:
+            DEFAULT_LOGGER.log(
+                "[INFO] Tailscale installed but inactive; run `sudo tailscale up` "
+                "if VPN access is expected."
+            )
 
     DEFAULT_LOGGER.log(
         "[INFO] No known network manager detected; perform manual investigation (ping, firewall, modem)."

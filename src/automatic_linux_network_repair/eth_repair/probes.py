@@ -91,6 +91,21 @@ def detect_network_managers() -> dict[str, bool]:
     return managers
 
 
+def tailscale_status() -> dict[str, bool]:
+    """Return whether Tailscale is installed and whether tailscaled is active."""
+
+    installed = shutil.which("tailscale") is not None
+    active = False
+
+    if installed:
+        ts = DEFAULT_SHELL.run_cmd(["systemctl", "is-active", "tailscaled"])
+        active = ts.returncode == 0
+
+    status = {"installed": installed, "active": active}
+    DEFAULT_LOGGER.debug(f"Tailscale status detected: {status}")
+    return status
+
+
 def list_candidate_interfaces() -> list[str]:
     """
     Return real physical interface names, stripping @physdev suffixes
