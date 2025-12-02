@@ -31,10 +31,10 @@ COPY docs ./docs
 
 RUN chmod +x scripts/appimage/entrypoint.sh
 
-USER builder
-
 RUN echo "builder ALL=(root) NOPASSWD:/bin/mkdir,/bin/chown" > /etc/sudoers.d/builder \
     && chmod 0440 /etc/sudoers.d/builder
+
+USER builder
 
 RUN python3.11 -m venv /app/.venv \
     && . /app/.venv/bin/activate \
