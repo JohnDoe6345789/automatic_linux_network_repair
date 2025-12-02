@@ -44,9 +44,9 @@ class LoggingManager:
         """Log an informational message."""
         self.logger.info(msg)
 
-    def debug(self, msg: str) -> None:
-        """Log a debug message."""
-        self.logger.debug(msg)
+    def debug(self, msg: str, *args: object) -> None:
+        """Log a debug message with optional formatting arguments."""
+        self.logger.debug(msg, *args)
 
 
 DEFAULT_LOGGER = LoggingManager()

@@ -47,3 +47,20 @@ ssh.service                      loaded active running   OpenBSD Secure Shell se
         "zerotier-one.service",
     ]
     assert any("Active VPN services" in call for call in logger.debug_calls)
+
+
+def test_list_candidate_interfaces_prioritizes_wired(monkeypatch):
+    """Interface discovery should sort physical Ethernet before wireless."""
+
+    stdout = """
+1: lo: <LOOPBACK> mtu 65536 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+2: wlan0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+3: enp3s0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state UP mode DEFAULT group default qlen 1000
+4: eth1: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+5: wwan0: <BROADCAST,MULTICAST> mtu 1500 qdisc noop state DOWN mode DEFAULT group default qlen 1000
+"""
+
+    shell = _StubShell(stdout)
+    monkeypatch.setattr(probes, "DEFAULT_SHELL", shell)
+
+    assert probes.list_candidate_interfaces() == ["enp3s0", "eth1", "wlan0", "wwan0"]
