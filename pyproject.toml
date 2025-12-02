@@ -1,6 +1,6 @@
 [project]
 name = "automatic_linux_network_repair"
-version = "0.1.2"
+version = "0.2"
 description = "Automatic Linux Network Repair"
 readme = "README.md"
 authors = [
