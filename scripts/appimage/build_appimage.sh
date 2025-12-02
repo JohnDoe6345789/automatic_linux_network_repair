@@ -55,7 +55,7 @@ prepare_appdir() {
 package_appimage() {
     echo "Packaging AppImage..."
     fetch_appimagetool
-    "$APPIMAGETOOL" "$APPDIR"
+    APPIMAGE_EXTRACT_AND_RUN=1 "$APPIMAGETOOL" "$APPDIR"
 }
 
 main() {
