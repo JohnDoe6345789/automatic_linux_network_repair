@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Automatic Linux Network Repair
+Comment=Interactive Ethernet and Wi-Fi repair helper
+Exec=automatic-linux-network-repair
+Icon=automatic-linux-network-repair
+Terminal=true
+Categories=Utility;Network;
