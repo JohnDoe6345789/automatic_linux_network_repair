@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 from typing import TextIO
 
 from automatic_linux_network_repair.eth_repair.diagnostics import fuzzy_diagnose
@@ -36,13 +37,21 @@ class EthernetRepairSideEffects:
     def setup_logging(self, verbose: bool) -> None:
         self.logger.setup(verbose)
 
+    def _invocation_hint(self) -> str:
+        program = Path(sys.argv[0]).name or "automatic-linux-network-repair"
+        if program.endswith(".py"):
+            python = Path(sys.executable).name or "python3"
+            return f"sudo {python} {program}"
+        return f"sudo {program}"
+
     def warn_not_root(self) -> None:
+        hint = self._invocation_hint()
         print(
-            "ERROR: This script must be run as root.\n       Try: sudo python3 eth_repair_menu.py",
+            f"ERROR: This script must be run as root.\n       Try: {hint}",
             file=self.stderr,
         )
         self.logger.log(
-            "[ERROR] Not running as root. Re-run with: sudo python3 eth_repair_menu.py",
+            f"[ERROR] Not running as root. Re-run with: {hint}",
         )
 
     def log_start(self, interface: str) -> None:
