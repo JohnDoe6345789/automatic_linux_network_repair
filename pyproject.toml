@@ -17,7 +17,7 @@ dependencies = [
   "rich",
   "typer",
 ]
-requires-python = ">= 3.10"
+requires-python = ">=3.10,<3.15"
 
 [project.optional-dependencies]
 dev = [
@@ -75,7 +75,7 @@ license = "MIT"
 authors = ["Richard Ward <richard.ward637@outlook.com>"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4.0"
+python = ">=3.10,<3.15"
 rich = "*"
 typer = "*"
 
@@ -88,7 +88,7 @@ ipdb = "*"
 black = "*"
 mypy = "*"
 flake8 = "*"
-pyinstaller = "*"
+pyinstaller = ">=6.3,<7"
 PyYAML = "*"
 
 [tool.poetry.scripts]
