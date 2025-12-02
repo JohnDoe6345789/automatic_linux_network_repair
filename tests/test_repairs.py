@@ -120,7 +120,10 @@ def test_repair_no_ipv4_prioritizes_networkmanager(monkeypatch):
 
     repairs.repair_no_ipv4("eth0", managers=managers, dry_run=False)
 
-    assert calls[:2] == [
+    expected_first_actions = [
         ["nmcli", "device", "reapply", "eth0"],
         ["nmcli", "device", "connect", "eth0"],
     ]
+
+    assert len(calls) >= len(expected_first_actions)
+    assert calls[: len(expected_first_actions)] == expected_first_actions
