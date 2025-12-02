@@ -1,5 +1,6 @@
 """Tests for shell helpers and logging utilities."""
 
+import io
 import logging
 
 from automatic_linux_network_repair.eth_repair import logging_utils, shell
@@ -24,3 +25,20 @@ def test_logging_manager_sets_level():
 
     manager.setup(verbose=True)
     assert manager.logger.level == logging.DEBUG
+
+
+def test_logging_manager_formats_debug_arguments():
+    """debug should accept formatting args like the stdlib logger."""
+
+    manager = logging_utils.LoggingManager("arg_formatting")
+    stream = io.StringIO()
+    handler = logging.StreamHandler(stream)
+    handler.setFormatter(logging.Formatter("%(message)s"))
+
+    manager.logger.handlers = [handler]
+    manager.logger.setLevel(logging.DEBUG)
+
+    manager.debug("iface=%s attempts=%s", "eth0", 3)
+
+    handler.flush()
+    assert "iface=eth0 attempts=3" in stream.getvalue()

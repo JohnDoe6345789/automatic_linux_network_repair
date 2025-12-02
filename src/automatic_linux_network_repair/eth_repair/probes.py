@@ -170,7 +170,17 @@ def list_candidate_interfaces() -> list[str]:
 
         names.append(name)
 
-    return names
+    def _priority(iface: str) -> tuple[int, str]:
+        wired_prefixes = ("eth", "en", "em")
+        wireless_prefixes = ("wlan", "wl")
+
+        if iface.startswith(wired_prefixes):
+            return (0, iface)
+        if iface.startswith(wireless_prefixes):
+            return (1, iface)
+        return (2, iface)
+
+    return sorted(names, key=_priority)
 
 
 def list_all_interfaces_detailed() -> list[str]:
