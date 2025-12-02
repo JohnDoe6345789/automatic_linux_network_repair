@@ -44,3 +44,5 @@ standard AppDir layout. Use the helper script to automate the process.
 - Re-run the script after code changes to refresh the binary inside the AppImage.
 - If you prefer a system-wide `appimagetool`, place it on your `PATH` and the script
   will use it instead of downloading a local copy.
+- The script sets `APPIMAGE_EXTRACT_AND_RUN=1` when invoking `appimagetool` so it can
+  run in environments without FUSE (e.g., CI runners or containers).
