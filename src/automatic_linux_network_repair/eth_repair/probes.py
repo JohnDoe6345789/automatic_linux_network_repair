@@ -106,6 +106,39 @@ def tailscale_status() -> dict[str, bool]:
     return status
 
 
+def detect_active_vpn_services() -> list[str]:
+    """Return a sorted list of running VPN-related systemd services."""
+
+    res = DEFAULT_SHELL.run_cmd(
+        ["systemctl", "list-units", "--type=service", "--state=running"]
+    )
+    if res.returncode != 0 or not res.stdout:
+        DEFAULT_LOGGER.debug(
+            f"VPN service detection failed rc={res.returncode}: {res.stderr!r}"
+        )
+        return []
+
+    keywords = ("vpn", "wireguard", "wg-quick", "zerotier")
+    matches: set[str] = set()
+
+    for line in res.stdout.splitlines():
+        parts = line.split()
+        if not parts:
+            continue
+
+        unit = parts[0]
+        if not unit.endswith(".service"):
+            continue
+
+        lower_unit = unit.lower()
+        if any(keyword in lower_unit for keyword in keywords):
+            matches.add(unit)
+
+    detected = sorted(matches)
+    DEFAULT_LOGGER.debug(f"Active VPN services detected: {detected}")
+    return detected
+
+
 def list_candidate_interfaces() -> list[str]:
     """
     Return real physical interface names, stripping @physdev suffixes
