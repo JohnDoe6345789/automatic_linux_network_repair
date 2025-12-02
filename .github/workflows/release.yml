@@ -1,0 +1,103 @@
+name: Build and Release AppImage
+
+on:
+  push:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Configure Poetry
+        run: poetry config virtualenvs.in-project true
+
+      - name: Install dependencies
+        run: poetry install --with dev
+
+      - name: Build AppImage
+        run: |
+          source .venv/bin/activate
+          bash scripts/appimage/build_appimage.sh
+
+      - name: Upload AppImage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: appimage
+          path: dist/*.AppImage
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download AppImage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: appimage
+          path: dist
+
+      - name: Build release metadata
+        id: meta
+        run: |
+          version=$(python - <<'PY'
+          import tomllib
+          import pathlib
+
+          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
+          print(data["project"]["version"])
+PY
+)
+          tag="v${version}-${GITHUB_RUN_NUMBER}"
+          name="Release ${version} (build ${GITHUB_RUN_NUMBER})"
+          appimage=$(ls dist/*.AppImage | head -n 1)
+
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+          echo "name=${name}" >> "$GITHUB_OUTPUT"
+          echo "asset=${appimage}" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          release_name: ${{ steps.meta.outputs.name }}
+          draft: false
+          prerelease: false
+          body: |
+            Automated release for commit ${{ github.sha }}.
+            App version: ${{ steps.meta.outputs.version }}.
+
+      - name: Upload AppImage asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.meta.outputs.asset }}
+          asset_name: automatic-linux-network-repair-${{ steps.meta.outputs.version }}-${{ github.run_number }}.AppImage
+          asset_content_type: application/octet-stream
