@@ -14,24 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-
-      - name: Install Poetry
-        run: pip install poetry
-
-      - name: Configure Poetry
-        run: poetry config virtualenvs.in-project true
-
-      - name: Install dependencies
-        run: poetry install --with dev
-
-      - name: Build AppImage
+      - name: Build AppImage in Docker (Debian 12)
         run: |
-          source .venv/bin/activate
-          bash scripts/appimage/build_appimage.sh
+          docker build -f Dockerfile.appimage -t aln-appimage .
+          mkdir -p dist
+          docker run --rm -v "${{ github.workspace }}/dist:/app/dist" aln-appimage
 
       - name: Upload AppImage artifact
         uses: actions/upload-artifact@v4

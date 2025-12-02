@@ -1,6 +1,6 @@
 [project]
 name = "automatic_linux_network_repair"
-version = "0.1.1"
+version = "0.1.2"
 description = "Automatic Linux Network Repair"
 readme = "README.md"
 authors = [
@@ -75,7 +75,7 @@ package = true
 
 [tool.poetry]
 name = "automatic_linux_network_repair"
-version = "0.1.1"
+version = "0.1.2"
 description = "Automatic Linux Network Repair"
 readme = "README.md"
 license = "MIT"
