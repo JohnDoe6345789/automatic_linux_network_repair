@@ -3,6 +3,7 @@
 import typer
 
 from automatic_linux_network_repair.eth_repair.cli import DEFAULT_RUNNER
+from automatic_linux_network_repair.systemd_validation import validate_systemd_tree
 from automatic_linux_network_repair.wifi import SecurityType, WirelessManager
 
 
@@ -17,6 +18,7 @@ class NetworkRepairCLI:
         self.app.add_typer(self._wifi_app, name="wifi", help="Wi-Fi management")
         self._wifi_app.command("scan")(self._wifi_scan)
         self._wifi_app.command("connect")(self._wifi_connect)
+        self.app.command("validate-systemd")(self._validate_systemd)
         self.wifi_manager = WirelessManager()
 
     def _main(
@@ -140,6 +142,61 @@ class NetworkRepairCLI:
     def run(self) -> None:
         """Invoke the Typer application."""
         self.app()
+
+    def _validate_systemd(
+        self,
+        path: str = typer.Option(
+            "/etc/systemd",
+            "--path",
+            "-p",
+            help="Path to the systemd configuration directory to validate.",
+        ),
+    ) -> None:
+        """Validate systemd unit files when systemd tools are installed."""
+
+        report = validate_systemd_tree(base_dir=path)
+
+        for issue in report.config_issues:
+            typer.echo(f"[CONFIG] {issue}", err=True)
+
+        if not report.available:
+            typer.echo("systemctl/systemd-analyze not available; skipping unit validation.", err=True)
+            raise typer.Exit(code=1)
+
+        if not report.unit_files:
+            if report.config_issues:
+                typer.echo(f"Checked configuration under {path}; {len(report.config_issues)} issues found.", err=True)
+                raise typer.Exit(code=1)
+
+            typer.echo(f"No systemd unit files found under {path}.")
+            raise typer.Exit(code=0)
+
+        failures = 0
+        failures += len(report.config_issues)
+        for validation in report.validations:
+            rc = validation.result.returncode
+            status = "OK" if rc == 0 else "FAIL"
+            detail = ""
+            if rc != 0:
+                failures += 1
+                detail = (
+                    validation.result.stderr.strip()
+                    or validation.result.stdout.strip()
+                    or f"rc={rc}"
+                )
+
+            message = f"[{status}] {validation.path}"
+            if detail:
+                message = f"{message}: {detail}"
+            typer.echo(message)
+
+        summary = f"Validated {len(report.unit_files)} files; {failures} failures."
+        if failures:
+            typer.echo(summary, err=True)
+            raise typer.Exit(code=1)
+
+        typer.echo(summary)
+        raise typer.Exit(code=0)
 
     def _resolve_wifi_interface(self, interface: str | None) -> str:
         if interface:
