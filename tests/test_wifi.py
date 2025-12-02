@@ -83,9 +83,7 @@ def test_wpa_cli_connect_configures_wep(monkeypatch):
     """Connecting with WEP should push correct wpa_cli commands."""
 
     responses = {
-        ("wpa_cli", "-i", "wlan0", "add_network"): CommandResult(
-            cmd=[], returncode=0, stdout="0\n", stderr=""
-        ),
+        ("wpa_cli", "-i", "wlan0", "add_network"): CommandResult(cmd=[], returncode=0, stdout="0\n", stderr=""),
         ("wpa_cli", "-i", "wlan0", "set_network", "0", "ssid", '"Cafe"'): CommandResult(
             cmd=[], returncode=0, stdout="OK\n", stderr=""
         ),
@@ -102,9 +100,12 @@ def test_wpa_cli_connect_configures_wep(monkeypatch):
             "set_network",
             "0",
             "wep_key0",
-            f'\"{TEST_WEP_KEY}\"',
+            f'"{TEST_WEP_KEY}"',
         ): CommandResult(
-            cmd=[], returncode=0, stdout="OK\n", stderr="",
+            cmd=[],
+            returncode=0,
+            stdout="OK\n",
+            stderr="",
         ),
         ("wpa_cli", "-i", "wlan0", "enable_network", "0"): CommandResult(
             cmd=[], returncode=0, stdout="OK\n", stderr=""
@@ -163,11 +164,7 @@ def test_iwlist_backend_rejects_secure_connect():
 def test_detect_interface_prefers_iw(monkeypatch):
     """Interface detection should prioritize iw output when available."""
 
-    responses = {
-        ("iw", "dev"): CommandResult(
-            cmd=[], returncode=0, stdout="phy#0\n\tInterface wlan1\n", stderr=""
-        )
-    }
+    responses = {("iw", "dev"): CommandResult(cmd=[], returncode=0, stdout="phy#0\n\tInterface wlan1\n", stderr="")}
 
     def fake_which(binary: str):
         return f"/usr/bin/{binary}" if binary in {"iw", "nmcli"} else None

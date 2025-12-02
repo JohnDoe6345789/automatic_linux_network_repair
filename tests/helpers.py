@@ -1,5 +1,6 @@
 """Reusable test utilities and recording stubs for the test suite."""
 
+
 class RecordingLogger:
     """In-memory logger capturing log messages and setup calls."""
 

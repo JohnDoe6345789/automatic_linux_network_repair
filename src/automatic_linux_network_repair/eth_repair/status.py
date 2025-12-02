@@ -51,23 +51,16 @@ def show_status(iface: str) -> None:
     if active_vpn_services:
         for unit in active_vpn_services:
             DEFAULT_LOGGER.log(f"  {unit}")
-        DEFAULT_LOGGER.log(
-            "  Hint: suspend VPN tunnels if they block local/internet connectivity."
-        )
+        DEFAULT_LOGGER.log("  Hint: suspend VPN tunnels if they block local/internet connectivity.")
     else:
         DEFAULT_LOGGER.log("  None detected")
     DEFAULT_LOGGER.log("")
     DEFAULT_LOGGER.log("Tailscale:")
-    DEFAULT_LOGGER.log(
-        f"  Installed        : {'yes' if tailscale['installed'] else 'no'}"
-    )
-    DEFAULT_LOGGER.log(
-        f"  tailscaled active: {'yes' if tailscale['active'] else 'no'}"
-    )
+    DEFAULT_LOGGER.log(f"  Installed        : {'yes' if tailscale['installed'] else 'no'}")
+    DEFAULT_LOGGER.log(f"  tailscaled active: {'yes' if tailscale['active'] else 'no'}")
     if tailscale["installed"] and not tailscale["active"]:
         DEFAULT_LOGGER.log(
-            "  Hint: tailscale installed but inactive; run 'sudo tailscale up' "
-            "if you expect VPN connectivity."
+            "  Hint: tailscale installed but inactive; run 'sudo tailscale up' if you expect VPN connectivity."
         )
     DEFAULT_LOGGER.log("")
     DEFAULT_LOGGER.log("/etc/resolv.conf (first lines):")

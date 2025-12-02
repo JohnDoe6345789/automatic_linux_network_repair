@@ -68,9 +68,7 @@ def _validate_ip_list(values: str, path: str, key: str, logger: LoggingManager |
     return issues
 
 
-def _validate_choice(
-    value: str, path: str, key: str, allowed: set[str], logger: LoggingManager | None
-) -> list[str]:
+def _validate_choice(value: str, path: str, key: str, allowed: set[str], logger: LoggingManager | None) -> list[str]:
     """Return issues when a value is not within the expected set."""
 
     if value in allowed:
@@ -129,9 +127,7 @@ def validate_resolved_conf(
     if not dns_tokens and not fallback_tokens:
         resolver_fn = resolver or _can_resolve_host
         if resolver_fn and not resolver_fn("example.com"):
-            issue = (
-                f"{path}: DNS and FallbackDNS are empty and failed to resolve example.com"
-            )
+            issue = f"{path}: DNS and FallbackDNS are empty and failed to resolve example.com"
             issues.append(issue)
             _log_issue(issue, logger)
 
@@ -149,9 +145,7 @@ def validate_resolved_conf(
 
     dns_over_tls = parser.get("Resolve", "DNSOverTLS", fallback="")
     if dns_over_tls:
-        issues.extend(
-            _validate_choice(dns_over_tls, path, "DNSOverTLS", {"yes", "no", "opportunistic"}, logger)
-        )
+        issues.extend(_validate_choice(dns_over_tls, path, "DNSOverTLS", {"yes", "no", "opportunistic"}, logger))
 
     llmnr = parser.get("Resolve", "LLMNR", fallback="")
     if llmnr:
@@ -163,9 +157,7 @@ def validate_resolved_conf(
 
     dns_stub = parser.get("Resolve", "DNSStubListener", fallback="")
     if dns_stub:
-        issues.extend(
-            _validate_choice(dns_stub, path, "DNSStubListener", {"yes", "no", "udp", "tcp", "both"}, logger)
-        )
+        issues.extend(_validate_choice(dns_stub, path, "DNSStubListener", {"yes", "no", "udp", "tcp", "both"}, logger))
 
     read_hosts = parser.get("Resolve", "ReadEtcHosts", fallback="")
     if read_hosts:

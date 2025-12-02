@@ -11,3 +11,6 @@ These instructions follow a simple MIT-style approach: minimal bureaucracy and m
 - Add or update tests when behavior changes to preserve reliability.
 - Prefer readable, maintainable solutions over cleverness.
 - If you add new files, include brief module-level comments describing their purpose.
+- Run both `ruff check .` and `ruff format --check` during CI or before submitting
+  changes; a helper script lives in `scripts/ruff_suite.py` to execute them
+  sequentially.

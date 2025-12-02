@@ -80,8 +80,7 @@ class DnsRepairSideEffects:
 
 def repair_interface_missing(iface: str) -> None:
     DEFAULT_LOGGER.log(
-        "[INFO] Interface does not exist. This is usually a driver, "
-        "hardware or VM configuration issue.",
+        "[INFO] Interface does not exist. This is usually a driver, hardware or VM configuration issue.",
     )
     DEFAULT_LOGGER.log("[HINT] Check dmesg, lspci/lsusb, or hypervisor NIC settings.")
 
@@ -116,8 +115,7 @@ def repair_no_ipv4(
             return
         if not dry_run:
             DEFAULT_LOGGER.log(
-                "[INFO] No IPv4 after systemd-networkd restart; "
-                "falling back to ifup / dhclient.",
+                "[INFO] No IPv4 after systemd-networkd restart; falling back to ifup / dhclient.",
             )
 
     if managers.get("ifupdown", False):
@@ -144,8 +142,7 @@ def repair_no_ipv4(
         DEFAULT_LOGGER.log("[OK] IPv4 obtained after dhclient.")
     elif not dry_run:
         DEFAULT_LOGGER.log(
-            "[WARN] Still no IPv4 after systemd-networkd/ifup/dhclient. "
-            "Check your DHCP server or static config.",
+            "[WARN] Still no IPv4 after systemd-networkd/ifup/dhclient. Check your DHCP server or static config.",
         )
 
 
@@ -177,8 +174,7 @@ def repair_no_route(dry_run: bool) -> None:
         return
 
     DEFAULT_LOGGER.log(
-        "[INFO] No known network manager to fix default route; "
-        "you may need to add it manually.",
+        "[INFO] No known network manager to fix default route; you may need to add it manually.",
     )
 
 
@@ -191,21 +187,15 @@ def repair_no_internet(dry_run: bool) -> None:
     active_vpn_services = detect_active_vpn_services()
 
     if managers.get("NetworkManager", False):
-        apply_action(
-            "Restart NetworkManager", ["systemctl", "restart", "NetworkManager"], dry_run
-        )
+        apply_action("Restart NetworkManager", ["systemctl", "restart", "NetworkManager"], dry_run)
         return
 
     if managers.get("systemd-networkd", False):
-        apply_action(
-            "Restart systemd-networkd", ["systemctl", "restart", "systemd-networkd"], dry_run
-        )
+        apply_action("Restart systemd-networkd", ["systemctl", "restart", "systemd-networkd"], dry_run)
         return
 
     if managers.get("ifupdown", False):
-        apply_action(
-            "Restart networking (ifupdown)", ["systemctl", "restart", "networking"], dry_run
-        )
+        apply_action("Restart networking (ifupdown)", ["systemctl", "restart", "networking"], dry_run)
         return
 
     if tailscale["installed"]:
@@ -216,8 +206,7 @@ def repair_no_internet(dry_run: bool) -> None:
             )
         else:
             DEFAULT_LOGGER.log(
-                "[INFO] Tailscale installed but inactive; run `sudo tailscale up` "
-                "if VPN access is expected."
+                "[INFO] Tailscale installed but inactive; run `sudo tailscale up` if VPN access is expected."
             )
 
     if active_vpn_services:
@@ -263,14 +252,11 @@ def repair_dns_core(allow_resolv_conf_edit: bool, dry_run: bool) -> None:
         DEFAULT_LOGGER.log("[OK] DNS working after resolv.conf rewrite.")
     elif not dry_run:
         DEFAULT_LOGGER.log(
-            "[WARN] DNS still failing after resolv.conf rewrite. "
-            "Check firewall / router.",
+            "[WARN] DNS still failing after resolv.conf rewrite. Check firewall / router.",
         )
 
 
-def repair_dns_fuzzy_with_confirm(
-    dry_run: bool, side_effects: DnsRepairSideEffects | None = None
-) -> None:
+def repair_dns_fuzzy_with_confirm(dry_run: bool, side_effects: DnsRepairSideEffects | None = None) -> None:
     """
     Fuzzy DNS repair used from FULL auto-diagnose in interactive mode.
 
@@ -312,9 +298,7 @@ def repair_dns_fuzzy_with_confirm(
         side_effects.log_user_declined_fuzzy()
 
 
-def repair_dns_interactive(
-    dry_run: bool, side_effects: DnsRepairSideEffects | None = None
-) -> None:
+def repair_dns_interactive(dry_run: bool, side_effects: DnsRepairSideEffects | None = None) -> None:
     """
     Menu-driven DNS repair (option 6):
     - Always try systemd-resolved restart first.
@@ -352,8 +336,7 @@ def repair_dns_interactive(
         DEFAULT_LOGGER.log("[OK] DNS working after resolv.conf rewrite.")
     elif not dry_run:
         DEFAULT_LOGGER.log(
-            "[WARN] DNS still failing after resolv.conf rewrite. "
-            "Check firewall / router.",
+            "[WARN] DNS still failing after resolv.conf rewrite. Check firewall / router.",
         )
 
 
@@ -387,8 +370,7 @@ class EthernetRepairCoordinator:
             repair_no_route(dry_run=self.dry_run)
         elif suspicion == Suspicion.NO_INTERNET:
             DEFAULT_LOGGER.log(
-                "[INFO] Unable to ping internet; if DHCP is OK, check "
-                "upstream gateway / firewall.",
+                "[INFO] Unable to ping internet; if DHCP is OK, check upstream gateway / firewall.",
             )
         elif suspicion == Suspicion.DNS_BROKEN:
             self._repair_dns()

@@ -47,4 +47,3 @@ ssh.service                      loaded active running   OpenBSD Secure Shell se
         "zerotier-one.service",
     ]
     assert any("Active VPN services" in call for call in logger.debug_calls)
-

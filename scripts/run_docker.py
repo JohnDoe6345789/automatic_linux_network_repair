@@ -40,16 +40,11 @@ def r_prompt_new_env(env_path: Path) -> None:
         "You can leave any value blank if you do not want to set it."
         "Values are written to the env file in KEY=VALUE format."
     )
-    github_pat = getpass.getpass(
-        "GITHUB_PERSONAL_ACCESS_TOKEN (hidden, optional): "
-    ).strip()
+    github_pat = getpass.getpass("GITHUB_PERSONAL_ACCESS_TOKEN (hidden, optional): ").strip()
     lines: list[str] = []
     if github_pat:
         lines.append(f"GITHUB_PERSONAL_ACCESS_TOKEN={github_pat}")
-    print(
-        "You may add extra KEY=VALUE entries. Press Enter on an empty line "
-        "when finished."
-    )
+    print("You may add extra KEY=VALUE entries. Press Enter on an empty line when finished.")
     while True:
         raw = input("Extra env (KEY=VALUE, blank to finish): ").strip()
         if not raw:
@@ -123,18 +118,18 @@ def r_try_install_docker_linux() -> None:
         sys.exit(1)
     try:
         r_run_command(["sudo", "apt", "update"])
-        r_run_command([
-            "sudo",
-            "apt",
-            "install",
-            "-y",
-            "docker.io",
-            "docker-compose-plugin",
-        ])
-    except SystemExit:
-        print(
-            "Automatic install failed. Please install Docker manually and re-run."
+        r_run_command(
+            [
+                "sudo",
+                "apt",
+                "install",
+                "-y",
+                "docker.io",
+                "docker-compose-plugin",
+            ]
         )
+    except SystemExit:
+        print("Automatic install failed. Please install Docker manually and re-run.")
         sys.exit(1)
 
 
@@ -189,11 +184,7 @@ def r_run_docker_compose(compose_file: Path, env_file: Path, pull: bool) -> None
 
 
 def r_parse_runner_args(argv: list[str] | None = None) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description=(
-            "Verify env file, ensure Docker, and run docker compose pull/up -d."
-        )
-    )
+    parser = argparse.ArgumentParser(description=("Verify env file, ensure Docker, and run docker compose pull/up -d."))
     parser.add_argument(
         "--env-file",
         default=".env",
@@ -223,6 +214,7 @@ def r_main(argv: list[str] | None = None) -> None:
     r_ensure_docker_available()
     do_pull = not args.no_pull
     r_run_docker_compose(compose_path, env_path, pull=do_pull)
+
 
 if __name__ == "__main__":
     r_main()

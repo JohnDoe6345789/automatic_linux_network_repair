@@ -18,9 +18,7 @@ def _stub_mode(label: str):
 
 def _apply_dns_common_stubs(monkeypatch):
     monkeypatch.setattr(repairs, "detect_resolv_conf_mode", lambda: (_stub_mode("stub"), "detail"))
-    monkeypatch.setattr(
-        repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False}
-    )
+    monkeypatch.setattr(repairs, "systemd_resolved_status", lambda: {"active": True, "enabled": False})
 
 
 def _record_dns_core_calls(calls: list[tuple[bool, bool]]):
@@ -95,12 +93,8 @@ def test_repair_no_internet_reports_active_vpn_services(monkeypatch):
     logger = RecordingLogger()
     monkeypatch.setattr(repairs, "DEFAULT_LOGGER", logger)
     monkeypatch.setattr(repairs, "detect_network_managers", lambda: {})
-    monkeypatch.setattr(
-        repairs, "tailscale_status", lambda: {"installed": False, "active": False}
-    )
-    monkeypatch.setattr(
-        repairs, "detect_active_vpn_services", lambda: ["openvpn.service", "wg-quick@wg0.service"]
-    )
+    monkeypatch.setattr(repairs, "tailscale_status", lambda: {"installed": False, "active": False})
+    monkeypatch.setattr(repairs, "detect_active_vpn_services", lambda: ["openvpn.service", "wg-quick@wg0.service"])
 
     repairs.repair_no_internet(dry_run=True)
 
