@@ -61,17 +61,17 @@ jobs:
       - name: Build release metadata
         id: meta
         run: |
-          version=$(python - <<'PY'
-          import tomllib
-          import pathlib
+            version=$(python - <<'PY'
+            import tomllib
+            import pathlib
 
-          data = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
-          print(data["project"]["version"])
-PY
-)
-          tag="v${version}-${GITHUB_RUN_NUMBER}"
-          name="Release ${version} (build ${GITHUB_RUN_NUMBER})"
-          appimage=$(ls dist/*.AppImage | head -n 1)
+            data = tomllib.loads(pathlib.Path("pyproject.toml").read_text())
+            print(data["project"]["version"])
+            PY
+            )
+            tag="v${version}-${GITHUB_RUN_NUMBER}"
+            name="Release ${version} (build ${GITHUB_RUN_NUMBER})"
+            appimage=$(ls dist/*.AppImage | head -n 1)
 
           echo "version=${version}" >> "$GITHUB_OUTPUT"
           echo "tag=${tag}" >> "$GITHUB_OUTPUT"
