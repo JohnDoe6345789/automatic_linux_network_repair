@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Launcher for the automatic_linux_network_repair Typer CLI.
 
 This helper adds the local ``src`` directory to ``sys.path`` so the

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 """Runner script that:
 
 1. Ensures an env file exists (and is gitignored).
