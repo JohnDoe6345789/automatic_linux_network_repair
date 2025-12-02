@@ -101,3 +101,26 @@ def test_repair_no_internet_reports_active_vpn_services(monkeypatch):
     assert any("Active VPN services detected" in msg for msg in logger.messages)
     assert any("openvpn.service" in msg for msg in logger.messages)
     assert any("wg-quick@wg0.service" in msg for msg in logger.messages)
+
+
+def test_repair_no_ipv4_prioritizes_networkmanager(monkeypatch):
+    """NetworkManager-managed hosts should renew DHCP via nmcli before other fallbacks."""
+
+    calls: list[list[str]] = []
+    monkeypatch.setattr(
+        repairs,
+        "apply_action",
+        lambda label, cmd, dry_run: calls.append(cmd),
+    )
+
+    ipv4_states = iter([False, False, True])
+    monkeypatch.setattr(repairs, "interface_has_ipv4", lambda iface: next(ipv4_states))
+
+    managers = {"NetworkManager": True, "systemd-networkd": False, "ifupdown": False}
+
+    repairs.repair_no_ipv4("eth0", managers=managers, dry_run=False)
+
+    assert calls[:2] == [
+        ["nmcli", "device", "reapply", "eth0"],
+        ["nmcli", "device", "connect", "eth0"],
+    ]

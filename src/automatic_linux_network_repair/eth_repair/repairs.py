@@ -100,10 +100,35 @@ def repair_no_ipv4(
 ) -> None:
     """
     Try everything reasonable to obtain IPv4:
-    1) systemd-networkd restart (if active)
-    2) ifdown/ifup (if available)
-    3) dhclient as final fallback
+    1) NetworkManager DHCP renew (if active)
+    2) systemd-networkd restart (if active)
+    3) ifdown/ifup (if available)
+    4) dhclient as final fallback
     """
+    if managers.get("NetworkManager", False):
+        apply_action(
+            f"Reapply NetworkManager profile for {iface}",
+            ["nmcli", "device", "reapply", iface],
+            dry_run,
+        )
+        if not dry_run and interface_has_ipv4(iface):
+            DEFAULT_LOGGER.log("[OK] IPv4 obtained after NetworkManager reapply.")
+            return
+
+        apply_action(
+            f"Reconnect {iface} via NetworkManager",
+            ["nmcli", "device", "connect", iface],
+            dry_run,
+        )
+        if not dry_run and interface_has_ipv4(iface):
+            DEFAULT_LOGGER.log("[OK] IPv4 obtained after NetworkManager reconnect.")
+            return
+
+        if not dry_run:
+            DEFAULT_LOGGER.log(
+                "[INFO] No IPv4 after NetworkManager reapply/reconnect; falling back to other managers.",
+            )
+
     if managers.get("systemd-networkd", False):
         apply_action(
             "Restart systemd-networkd",
