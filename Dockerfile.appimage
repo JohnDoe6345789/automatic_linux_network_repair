@@ -29,6 +29,8 @@ COPY scripts ./scripts
 COPY src ./src
 COPY docs ./docs
 
+RUN chmod +x scripts/appimage/entrypoint.sh
+
 USER builder
 
 RUN python3.11 -m venv /app/.venv \
@@ -38,9 +40,9 @@ RUN python3.11 -m venv /app/.venv \
 
 ENV PATH="/app/.venv/bin:${PATH}"
 
-# Run the AppImage build as root so writing to a bind-mounted dist/ directory works
-# even when the host user does not match the internal builder user. The virtual
-# environment remains available via PATH.
+# Switch to root for the entrypoint so we can repair permissions on a bind-mounted
+# dist/ directory, then drop privileges back to the non-root builder user before
+# running the build script.
 USER root
 
-CMD ["bash", "scripts/appimage/build_appimage.sh"]
+CMD ["bash", "scripts/appimage/entrypoint.sh"]
