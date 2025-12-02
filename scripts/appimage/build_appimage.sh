@@ -11,7 +11,8 @@ BUILD_DIR="${BUILD_DIR:-${PROJECT_ROOT}/build/pyinstaller}"
 APPDIR="${DIST_DIR}/AppDir"
 APPIMAGE_OUTPUT="${DIST_DIR}/${APP_NAME}-$(uname -m).AppImage"
 PYINSTALLER_ENTRYPOINT="${PROJECT_ROOT}/src/automatic_linux_network_repair/__main__.py"
-APPIMAGETOOL="${SCRIPT_DIR}/appimagetool"
+APPIMAGETOOL_DIR="${DIST_DIR}/appimagetool"
+APPIMAGETOOL="${APPIMAGETOOL_DIR}/appimagetool"
 APPIMAGETOOL_URL="https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
 
 ensure_writable_dir() {
@@ -39,7 +40,7 @@ fetch_appimagetool() {
         return
     fi
 
-    mkdir -p "$SCRIPT_DIR"
+    ensure_writable_dir "$APPIMAGETOOL_DIR"
     echo "Downloading appimagetool from ${APPIMAGETOOL_URL}..."
     curl -L -o "$APPIMAGETOOL" "$APPIMAGETOOL_URL"
     chmod +x "$APPIMAGETOOL"
