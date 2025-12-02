@@ -1,0 +1,41 @@
+# Dockerfile.appimage: Build the AppImage inside a Debian Bookworm container
+#
+# This image installs Python 3.11 and the build dependencies used by
+# scripts/appimage/build_appimage.sh so the AppImage can be produced in a
+# reproducible environment.
+
+FROM debian:12-slim
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    APPIMAGE_EXTRACT_AND_RUN=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bash \
+        python3.11 python3.11-venv python3.11-dev \
+        build-essential patchelf curl ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd --create-home --shell /bin/bash builder \
+    && mkdir -p /app \
+    && chown builder:builder /app
+
+WORKDIR /app
+
+COPY requirements.txt pyproject.toml poetry.lock README.md ./
+COPY scripts ./scripts
+COPY src ./src
+COPY docs ./docs
+
+USER builder
+
+RUN python3.11 -m venv /app/.venv \
+    && . /app/.venv/bin/activate \
+    && python -m pip install --upgrade pip \
+    && python -m pip install -r requirements.txt
+
+ENV PATH="/app/.venv/bin:${PATH}"
+
+CMD ["bash", "scripts/appimage/build_appimage.sh"]

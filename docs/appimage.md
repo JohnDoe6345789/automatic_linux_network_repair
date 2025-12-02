@@ -38,6 +38,65 @@ standard AppDir layout. Use the helper script to automate the process.
    ./dist/automatic-linux-network-repair*.AppImage --help
    ```
 
+## Debian Bookworm (x86_64, Python 3.11) quickstart
+
+Use these commands on Debian 12 to create an isolated Python 3.11 environment and
+build the AppImage end-to-end:
+
+```bash
+sudo apt update
+sudo apt install -y python3.11 python3.11-venv python3.11-dev build-essential patchelf curl
+
+python3.11 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+
+bash scripts/appimage/build_appimage.sh
+ls dist/automatic-linux-network-repair-x86_64.AppImage
+```
+
+- `patchelf` is required by PyInstaller when building the single-file binary.
+- Bookworm ships Python 3.11 by default, but the explicit package names avoid
+  picking up an alternative interpreter if one is installed.
+
+### CI support
+
+GitHub Actions does not offer a Debian Bookworm hosted runner. Use a container
+job (e.g., `container: debian:12`) or a self-hosted runner when you need this
+exact environment. On the default Ubuntu runners, keep the `APPIMAGE_EXTRACT_AND_RUN`
+behavior from the build script so the AppImage creation still works without FUSE.
+
+You can also build the AppImage inside `Dockerfile.appimage` directly from a
+GitHub Actions job that runs on `ubuntu-latest`:
+
+```yaml
+- uses: actions/checkout@v4
+- name: Build AppImage in Docker
+  run: |
+    docker build -f Dockerfile.appimage -t aln-appimage .
+    mkdir -p dist
+    docker run --rm -v "${{ github.workspace }}/dist:/app/dist" aln-appimage
+- uses: actions/upload-artifact@v4
+  with:
+    name: appimage
+    path: dist/*.AppImage
+```
+
+## Build inside Docker (Debian Bookworm)
+
+To keep the Debian 12 toolchain isolated, use the provided `Dockerfile.appimage`
+to build the AppImage inside a container:
+
+```bash
+docker build -f Dockerfile.appimage -t aln-appimage .
+docker run --rm -v "$(pwd)/dist:/app/dist" aln-appimage
+```
+
+The container installs Python 3.11 along with PyInstaller requirements and sets
+`APPIMAGE_EXTRACT_AND_RUN=1` so the build works without FUSE. The generated
+AppImage is emitted to your local `dist/` directory via the bind mount.
+
 ## Notes
 
 - The AppImage uses the CLI entrypoint and runs in a terminal.

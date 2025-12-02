@@ -37,8 +37,14 @@ jobs:
     - name: Install dependencies
       run: poetry install --with dev
 
+    - name: Validate YAML files
+      run: poetry run python scripts/validate_yaml.py
+
     - name: Lint with ruff
       run: poetry run ruff check .
+
+    - name: Check formatting with ruff
+      run: poetry run ruff format --check
 
     - name: Run tests
       run: poetry run pytest
