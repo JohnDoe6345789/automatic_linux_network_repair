@@ -15,6 +15,12 @@ from automatic_linux_network_repair.wifi import (
 from tests.helpers import RecordingLogger
 
 
+# Dummy credentials used only for unit-test command construction; they are not
+# real secrets or production values.
+TEST_WEP_KEY = "example-wep-key"
+TEST_WPA_KEY = "example-wpa-key-12345678"
+
+
 class DummyShell:
     """Record issued commands and return canned results."""
 
@@ -90,8 +96,16 @@ def test_wpa_cli_connect_configures_wep(monkeypatch):
         ("wpa_cli", "-i", "wlan0", "set_network", "0", "key_mgmt", "NONE"): CommandResult(
             cmd=[], returncode=0, stdout="OK\n", stderr=""
         ),
-        ("wpa_cli", "-i", "wlan0", "set_network", "0", "wep_key0", '"secret"'): CommandResult(
-            cmd=[], returncode=0, stdout="OK\n", stderr=""
+        (
+            "wpa_cli",
+            "-i",
+            "wlan0",
+            "set_network",
+            "0",
+            "wep_key0",
+            f'\"{TEST_WEP_KEY}\"',
+        ): CommandResult(
+            cmd=[], returncode=0, stdout="OK\n", stderr="",
         ),
         ("wpa_cli", "-i", "wlan0", "enable_network", "0"): CommandResult(
             cmd=[], returncode=0, stdout="OK\n", stderr=""
@@ -106,7 +120,7 @@ def test_wpa_cli_connect_configures_wep(monkeypatch):
     result = backend.connect(
         interface="wlan0",
         ssid="Cafe",
-        password="secret",
+        password=TEST_WEP_KEY,
         security=SecurityType.WEP,
     )
 
@@ -139,7 +153,7 @@ def test_iwlist_backend_rejects_secure_connect():
     result = backend.connect(
         interface="wlan0",
         ssid="SecureNet",
-        password="supersecret",
+        password=TEST_WPA_KEY,
         security=SecurityType.WPA2,
     )
 
