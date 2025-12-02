@@ -2,12 +2,12 @@
 
 ## Contents
 
-- [Readme](readme.md)
+- [Project overview](../README.md)
 - [Installation](installation.md)
-- [Usage](usage.md)
-- [Modules](modules.md)
-- [Contributing](contributing.md)
-- [History](history.md)
+- [Usage guide](usage.md)
+- [Systemd validation](systemd_validation.md)
+- [AppImage builds](appimage.md)
+- [Offline installs](offline_install.md)
 
 ## Indices and tables
 
