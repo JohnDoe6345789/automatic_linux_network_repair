@@ -15,4 +15,6 @@ fi
 
 sudo chown -R builder:builder "${DIST_DIR}"
 
-exec bash -lc "sudo -u builder PATH=/app/.venv/bin:${PATH} bash scripts/appimage/build_appimage.sh"
+# The container already runs as the builder user, so invoke the build script
+# directly without sudo to avoid sudoers restrictions.
+exec bash -lc "PATH=/app/.venv/bin:${PATH} bash scripts/appimage/build_appimage.sh"
