@@ -1,5 +1,9 @@
 # History
 
+## 0.2
+
+* AppImage fixes
+
 ## 0.1.2 (2025-12-03)
 
 * Bump package version after AppImage CI and Docker workflow updates.
